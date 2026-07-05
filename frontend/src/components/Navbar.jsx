@@ -1,5 +1,13 @@
-import { Link, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+
+const links = [
+  { to: "/dashboard", label: "Dashboard" },
+  { to: "/skin-profile", label: "Skin Profile" },
+  { to: "/skin-assessment", label: "Assessment" },
+  { to: "/recommendations", label: "Recommendations" },
+  { to: "/progress", label: "Progress" },
+];
 
 export default function Navbar() {
   const { token, logout } = useAuth();
@@ -11,19 +19,25 @@ export default function Navbar() {
   };
 
   return (
-    <nav style={{ display: "flex", gap: "1rem", padding: "1rem", borderBottom: "1px solid #eee" }}>
-      <Link to="/dashboard">Dashboard</Link>
-      <Link to="/skin-profile">Skin Profile</Link>
-      <Link to="/skin-assessment">Skin Assessment</Link>
-      <Link to="/recommendations">Recommendations</Link>
-      <Link to="/progress">Progress</Link>
-      <div style={{ marginLeft: "auto" }}>
-        {token ? (
-          <button onClick={handleLogout}>Logout</button>
-        ) : (
-          <Link to="/login">Login</Link>
-        )}
-      </div>
-    </nav>
+    <aside className="sidebar">
+      <div className="brand">Skincare Planner</div>
+      <nav className="nav-links">
+        {links.map((link) => (
+          <NavLink
+            key={link.to}
+            to={link.to}
+            className={({ isActive }) => `nav-link${isActive ? " active" : ""}`}
+          >
+            <span className="nav-dot" />
+            {link.label}
+          </NavLink>
+        ))}
+      </nav>
+      {token && (
+        <div className="sidebar-footer">
+          <button className="btn-logout" onClick={handleLogout}>Log out</button>
+        </div>
+      )}
+    </aside>
   );
 }
