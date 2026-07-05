@@ -1,0 +1,56 @@
+[
+  {
+    "name": "Gentle Foaming Cleanser",
+    "brand": "DermaCare",
+    "category": "Cleanser",
+    "suitable_skin_types": ["oily", "combination", "normal"],
+    "key_ingredients": ["Niacinamide", "Salicylic Acid"],
+    "price_inr": 449,
+    "description": "A sulfate-free daily cleanser that removes excess oil without stripping the skin barrier."
+  },
+  {
+    "name": "Hydrating Barrier Repair Cream",
+    "brand": "PureGlow",
+    "category": "Moisturizer",
+    "suitable_skin_types": ["dry", "sensitive", "normal"],
+    "key_ingredients": ["Ceramides", "Hyaluronic Acid"],
+    "price_inr": 699,
+    "description": "Rich, fragrance-free moisturizer that restores the skin barrier and locks in moisture for 24 hours."
+  },
+  {
+    "name": "10% Niacinamide Serum",
+    "brand": "ClearSkin Labs",
+    "category": "Serum",
+    "suitable_skin_types": ["oily", "combination"],
+    "key_ingredients": ["Niacinamide"],
+    "price_inr": 599,
+    "description": "Lightweight serum that visibly reduces pore size and controls sebum production."
+  },
+  {
+    "name": "Vitamin C Brightening Serum",
+    "brand": "GlowLab",
+    "category": "Serum",
+    "suitable_skin_types": ["normal", "combination", "oily"],
+    "key_ingredients": ["Vitamin C (Ascorbic Acid)"],
+    "price_inr": 899,
+    "description": "Antioxidant-rich morning serum that brightens dull skin and fades dark spots over time."
+  },
+  {
+    "name": "Overnight Retinol Repair",
+    "brand": "DermaCare",
+    "category": "Treatment",
+    "suitable_skin_types": ["normal", "combination", "oily"],
+    "key_ingredients": ["Retinol"],
+    "price_inr": 999,
+    "description": "Nightly anti-aging treatment that improves texture and reduces fine lines over 8-12 weeks."
+  },
+  {
+    "name": "Mineral Sunscreen SPF 50",
+    "brand": "SunShield",
+    "category": "Sunscreen",
+    "suitable_skin_types": ["oily", "dry", "combination", "normal", "sensitive"],
+    "key_ingredients": ["Zinc Oxide"],
+    "price_inr": 549,
+    "description": "Broad-spectrum, non-greasy mineral sunscreen suitable for all skin types, including sensitive skin."
+  }
+]
