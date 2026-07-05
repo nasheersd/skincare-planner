@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://skincare-backend-abc1.onrender.com/api",
+  baseURL: "https://skincare-backend-xf68.onrender.com/api",
 });
 
 // Attach JWT token to every request if present
