@@ -11,9 +11,7 @@ export default function ProductRecommendation() {
         <RitualRing size={72} progress={0.2} color="var(--color-gold)" />
         <h3>Not built yet — by design</h3>
         <p>
-          AI-powered recommendations aren't part of Milestone 1. Once your skin profile and
-          lifestyle data are in place, this page will connect to the recommendation engine
-          and match you with products from the ingredient catalog.
+          Not Available
         </p>
       </div>
     </div>
