@@ -9,7 +9,7 @@ from app.models import RoleEnum, SkinTypeEnum
 class UserRegister(BaseModel):
     full_name: str = Field(..., max_length=150)
     email: EmailStr
-    password: str = Field(..., min_length=8)
+    password: str = Field(..., min_length=8, max_length=72)
     role: RoleEnum = RoleEnum.user
 
 
