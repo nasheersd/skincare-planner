@@ -18,7 +18,8 @@ from app.config import settings
 config = context.config
 
 # Override sqlalchemy.url with your real DATABASE_URL
-config.set_main_option("sqlalchemy.url", os.getenv("mongodb+srv://nasheer_db_user:Nasheer%401007@cluster0.rkuzdnz.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"))
+#config.set_main_option("sqlalchemy.url", os.getenv("postgresql://skincare_db_bfzu_user:tiJkI51ZxnoyX2KrFsSGFbYBjAf2pf2n@dpg-d952ud1kh4rs73804qg0-a.singapore-postgres.render.com/skincare_db_bfzu"))
+config.set_main_option("sqlalchemy.url", settings.postgres_url)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
