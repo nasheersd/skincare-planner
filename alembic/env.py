@@ -12,12 +12,13 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'backend'))
 
 from app.database import Base   # <-- adjust import to wherever your Base is defined
 from app import models          # <-- adjust to wherever your models are imported, so Base.metadata knows about them
+from app.config import settings
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
 
 # Override sqlalchemy.url with your real DATABASE_URL
-config.set_main_option("sqlalchemy.url", os.getenv("DATABASE_URL"))
+config.set_main_option("sqlalchemy.url", os.getenv("mongodb+srv://nasheer_db_user:Nasheer%401007@cluster0.rkuzdnz.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"))
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
