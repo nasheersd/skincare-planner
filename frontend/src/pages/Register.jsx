@@ -11,7 +11,7 @@ export default function Register() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { register } = useAuth();
+  const { register, login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -20,8 +20,9 @@ export default function Register() {
     setLoading(true);
     try {
       await register(fullName, email, password, role);
+      await login(email, password);
       setSuccess(true);
-      setTimeout(() => navigate("/login"), 1000);
+      navigate("/skin-profile", { replace: true });
     } catch (err) {
       setError(err.response?.data?.detail || "We couldn't create your account. Please try again.");
     } finally {
@@ -61,7 +62,7 @@ export default function Register() {
             {loading ? "Creating account…" : "Create account"}
           </button>
           {error && <div className="status-msg error">{error}</div>}
-          {success && <div className="status-msg ok">Account created — redirecting to sign in…</div>}
+          {success && <div className="status-msg ok">Account created — setting up your skin profile…</div>}
         </form>
         <p className="auth-footer">Already have an account? <Link to="/login">Sign in</Link></p>
       </div>
