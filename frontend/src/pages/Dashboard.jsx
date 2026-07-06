@@ -21,6 +21,13 @@ const QUICK_ACTIONS = [
     color: "var(--color-accent)",
   },
   {
+    to: "/dermatologist",
+    title: "Dermatologist",
+    note: "Contact a licensed skin expert",
+    progress: 0.4,
+    color: "var(--color-gold)",
+  },
+  {
     to: "/recommendations",
     title: "Recommendations",
     note: "AI-powered suggestions — Milestone 2+",

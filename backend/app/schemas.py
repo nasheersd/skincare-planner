@@ -34,10 +34,29 @@ class UserOut(BaseModel):
     email: EmailStr
     role: RoleEnum
     is_active: bool
+    assigned_dermatologist_id: Optional[str] = None
     created_at: datetime
 
     class Config:
         from_attributes = True
+
+
+# ---------- Dermatologist Contact ----------
+class DermatologistContactOut(BaseModel):
+    id: str
+    full_name: str
+    email: EmailStr
+    phone: Optional[str] = None
+    clinic_name: Optional[str] = None
+    specialty: Optional[str] = None
+    bio: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+
+
+class AssignDermatologistIn(BaseModel):
+    dermatologist_id: str
 
 
 # ---------- Skin Profile ----------

@@ -40,12 +40,30 @@ class User(Base):
     hashed_password = Column(String(255), nullable=False)
     role = Column(Enum(RoleEnum), nullable=False, default=RoleEnum.user)
     is_active = Column(Boolean, default=True)
+    assigned_dermatologist_id = Column(UUID(as_uuid=False), ForeignKey("users.id"), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     skin_profile = relationship("SkinProfile", back_populates="user", uselist=False, cascade="all, delete-orphan")
     lifestyle_entries = relationship("LifestyleEntry", back_populates="user", cascade="all, delete-orphan")
     progress_entries = relationship("ProgressEntry", back_populates="user", cascade="all, delete-orphan")
+    dermatologist_profile = relationship("DermatologistProfile", back_populates="user", uselist=False, cascade="all, delete-orphan")
+    assigned_dermatologist = relationship("User", remote_side=[id], foreign_keys=[assigned_dermatologist_id])
+
+
+class DermatologistProfile(Base):
+    __tablename__ = "dermatologist_profiles"
+
+    id = Column(UUID(as_uuid=False), primary_key=True, default=gen_uuid)
+    user_id = Column(UUID(as_uuid=False), ForeignKey("users.id", ondelete="CASCADE"), unique=True, nullable=False)
+    phone = Column(String(30), nullable=True)
+    clinic_name = Column(String(200), nullable=True)
+    specialty = Column(String(150), nullable=True)
+    bio = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    user = relationship("User", back_populates="dermatologist_profile")
 
 
 class SkinProfile(Base):

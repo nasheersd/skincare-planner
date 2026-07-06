@@ -509,6 +509,88 @@ input[type="range"] {
   to { transform: rotate(360deg); }
 }
 
+/* ---------- Dermatologist contact ---------- */
+.contact-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.1rem;
+}
+
+.contact-card {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.contact-card-assigned {
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-lift);
+}
+
+.contact-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.contact-card-header h3 {
+  margin-bottom: 0.25rem;
+}
+
+.contact-specialty {
+  font-size: 0.85rem;
+  color: var(--color-primary-dark);
+  margin: 0;
+  font-weight: 500;
+}
+
+.contact-bio {
+  font-size: 0.9rem;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.contact-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: 0.85rem 0;
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.contact-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+}
+
+.contact-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-ink-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  flex-shrink: 0;
+}
+
+.contact-value {
+  font-size: 0.9rem;
+  color: var(--color-ink);
+  text-align: right;
+}
+
+.contact-link {
+  color: var(--color-primary-dark);
+  font-weight: 500;
+}
+
+.contact-link:hover {
+  text-decoration: underline;
+}
+
 /* ---------- Responsive ---------- */
 @media (max-width: 780px) {
   .app-shell { flex-direction: column; }

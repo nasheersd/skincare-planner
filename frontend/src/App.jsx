@@ -10,6 +10,7 @@ import SkinProfile from "./pages/SkinProfile";
 import SkinAssessment from "./pages/SkinAssessment";
 import ProductRecommendation from "./pages/ProductRecommendation";
 import ProgressTracking from "./pages/ProgressTracking";
+import DermatologistContact from "./pages/DermatologistContact";
 
 function Layout({ children }) {
   const location = useLocation();
@@ -37,6 +38,7 @@ export default function App() {
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             <Route path="/skin-profile" element={<ProtectedRoute><SkinProfile /></ProtectedRoute>} />
             <Route path="/skin-assessment" element={<ProtectedRoute><SkinAssessment /></ProtectedRoute>} />
+            <Route path="/dermatologist" element={<ProtectedRoute><DermatologistContact /></ProtectedRoute>} />
             <Route path="/recommendations" element={<ProtectedRoute><ProductRecommendation /></ProtectedRoute>} />
             <Route path="/progress" element={<ProtectedRoute><ProgressTracking /></ProtectedRoute>} />
           </Routes>
