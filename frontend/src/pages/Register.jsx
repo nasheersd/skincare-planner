@@ -47,8 +47,8 @@ export default function Register() {
             <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
           </div>
           <div className="field">
-            <label htmlFor="password">Password <span className="hint">min 8 characters</span></label>
-            <input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={8} maxLength={72} />
+            <label htmlFor="password">Password <span className="hint">min 12 characters</span></label>
+            <input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={12} maxLength={72} />
           </div>
           <div className="field">
             <label htmlFor="role">I am a</label>

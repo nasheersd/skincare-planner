@@ -9,6 +9,15 @@
     "description": "A sulfate-free daily cleanser that removes excess oil without stripping the skin barrier."
   },
   {
+    "name": "Cream Hydrating Cleanser",
+    "brand": "PureGlow",
+    "category": "Cleanser",
+    "suitable_skin_types": ["dry", "sensitive", "normal"],
+    "key_ingredients": ["Ceramides", "Hyaluronic Acid", "Squalane"],
+    "price_inr": 499,
+    "description": "Milky, non-foaming cleanser that cleanses gently while nourishing dry and sensitive skin."
+  },
+  {
     "name": "Hydrating Barrier Repair Cream",
     "brand": "PureGlow",
     "category": "Moisturizer",
@@ -16,6 +25,24 @@
     "key_ingredients": ["Ceramides", "Hyaluronic Acid"],
     "price_inr": 699,
     "description": "Rich, fragrance-free moisturizer that restores the skin barrier and locks in moisture for 24 hours."
+  },
+  {
+    "name": "Oil-Control Mattifying Gel",
+    "brand": "ClearSkin Labs",
+    "category": "Moisturizer",
+    "suitable_skin_types": ["oily", "combination"],
+    "key_ingredients": ["Niacinamide", "Hyaluronic Acid"],
+    "price_inr": 549,
+    "description": "Lightweight gel moisturizer that hydrates without shine — ideal for oily and acne-prone skin."
+  },
+  {
+    "name": "Centella Calming Recovery Cream",
+    "brand": "SkinSoothe",
+    "category": "Moisturizer",
+    "suitable_skin_types": ["sensitive", "dry", "normal"],
+    "key_ingredients": ["Centella Asiatica", "Ceramides", "Squalane"],
+    "price_inr": 749,
+    "description": "Soothing cream that calms redness and strengthens a compromised skin barrier."
   },
   {
     "name": "10% Niacinamide Serum",
@@ -36,13 +63,67 @@
     "description": "Antioxidant-rich morning serum that brightens dull skin and fades dark spots over time."
   },
   {
+    "name": "Alpha Arbutin Spot Corrector",
+    "brand": "GlowLab",
+    "category": "Serum",
+    "suitable_skin_types": ["normal", "combination", "dry", "oily"],
+    "key_ingredients": ["Alpha Arbutin", "Hyaluronic Acid"],
+    "price_inr": 649,
+    "description": "Targeted brightening serum for dark spots, melasma, and uneven skin tone."
+  },
+  {
+    "name": "Peptide Firming Serum",
+    "brand": "AgeDefy",
+    "category": "Serum",
+    "suitable_skin_types": ["dry", "normal", "combination"],
+    "key_ingredients": ["Peptides", "Hyaluronic Acid"],
+    "price_inr": 1099,
+    "description": "Collagen-boosting serum that firms skin and softens fine lines with daily use."
+  },
+  {
     "name": "Overnight Retinol Repair",
     "brand": "DermaCare",
     "category": "Treatment",
     "suitable_skin_types": ["normal", "combination", "oily"],
     "key_ingredients": ["Retinol"],
     "price_inr": 999,
-    "description": "Nightly anti-aging treatment that improves texture and reduces fine lines over 8-12 weeks."
+    "description": "Nightly anti-aging treatment that improves texture and reduces fine lines over 8–12 weeks."
+  },
+  {
+    "name": "2% BHA Pore Refining Toner",
+    "brand": "ClearSkin Labs",
+    "category": "Toner",
+    "suitable_skin_types": ["oily", "combination"],
+    "key_ingredients": ["Salicylic Acid", "Niacinamide"],
+    "price_inr": 529,
+    "description": "Exfoliating toner that unclogs pores, reduces blackheads, and refines skin texture."
+  },
+  {
+    "name": "7% Glycolic Acid Exfoliating Toner",
+    "brand": "GlowLab",
+    "category": "Toner",
+    "suitable_skin_types": ["normal", "combination", "oily"],
+    "key_ingredients": ["Glycolic Acid"],
+    "price_inr": 579,
+    "description": "AHA toner that smooths rough texture and restores radiance to dull, uneven skin."
+  },
+  {
+    "name": "Tea Tree Blemish Spot Gel",
+    "brand": "ClearSkin Labs",
+    "category": "Treatment",
+    "suitable_skin_types": ["oily", "combination"],
+    "key_ingredients": ["Tea Tree Oil", "Salicylic Acid"],
+    "price_inr": 349,
+    "description": "Fast-acting spot treatment that targets active breakouts and reduces inflammation overnight."
+  },
+  {
+    "name": "10% Azelaic Acid Suspension",
+    "brand": "SkinSoothe",
+    "category": "Treatment",
+    "suitable_skin_types": ["sensitive", "combination", "normal"],
+    "key_ingredients": ["Azelaic Acid"],
+    "price_inr": 799,
+    "description": "Multi-tasking treatment for rosacea-prone skin — reduces redness, blemishes, and post-acne marks."
   },
   {
     "name": "Mineral Sunscreen SPF 50",

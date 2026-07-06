@@ -9,7 +9,7 @@ from app.models import RoleEnum, SkinTypeEnum
 class UserRegister(BaseModel):
     full_name: str = Field(..., max_length=150)
     email: EmailStr
-    password: str = Field(..., min_length=8, max_length=72)
+    password: str = Field(..., min_length=12, max_length=72)
     role: RoleEnum = RoleEnum.user
 
 
@@ -95,3 +95,23 @@ class LifestyleEntryOut(LifestyleEntryIn):
 
     class Config:
         from_attributes = True
+
+
+# ---------- Product Recommendations ----------
+class ProductRecommendationOut(BaseModel):
+    id: str
+    name: str
+    brand: str
+    category: str
+    suitable_skin_types: list[str]
+    key_ingredients: list[str]
+    price_inr: float
+    description: str
+    match_score: int
+    matched_concerns: list[str]
+
+
+class RecommendationsOut(BaseModel):
+    skin_type: str
+    skin_concerns: list[str]
+    recommendations: list[ProductRecommendationOut]
