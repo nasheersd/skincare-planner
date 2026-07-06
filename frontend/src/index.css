@@ -79,10 +79,34 @@ a:hover { text-decoration: underline; }
   flex: 1;
   min-width: 0;
   padding: 2.5rem clamp(1.25rem, 4vw, 3.5rem);
+  max-width: 960px;
+}
+
+.page {
+  animation: fadeIn 0.25s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .page-header {
   margin-bottom: 2rem;
+}
+
+.section {
+  margin-bottom: 2rem;
+}
+
+.section-title {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-ink-faint);
+  font-weight: 500;
+  margin: 0 0 0.85rem;
 }
 
 .eyebrow {
@@ -96,6 +120,11 @@ a:hover { text-decoration: underline; }
   padding: 0.28em 0.7em;
   border-radius: 999px;
   margin-bottom: 0.9rem;
+}
+
+.eyebrow-inline {
+  margin-bottom: 0;
+  font-size: 0.68rem;
 }
 
 /* ---------- Sidebar / Navbar ---------- */
@@ -118,7 +147,19 @@ a:hover { text-decoration: underline; }
   font-size: 1.3rem;
   color: var(--color-primary-dark);
   padding: 0 0.6rem;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
+  line-height: 1.2;
+}
+
+.brand-tagline {
+  display: block;
+  font-family: var(--font-mono);
+  font-style: normal;
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-ink-faint);
+  margin-top: 0.35rem;
 }
 
 .nav-links {
@@ -148,9 +189,16 @@ a:hover { text-decoration: underline; }
   color: var(--color-primary-dark);
 }
 
-.nav-dot {
-  width: 6px; height: 6px; border-radius: 50%;
-  background: currentColor; opacity: 0.55;
+.nav-icon {
+  width: 1.1rem;
+  text-align: center;
+  font-size: 0.85rem;
+  opacity: 0.75;
+  flex-shrink: 0;
+}
+
+.nav-link.active .nav-icon {
+  opacity: 1;
 }
 
 .sidebar-footer {
@@ -180,6 +228,19 @@ a:hover { text-decoration: underline; }
   box-shadow: var(--shadow-soft);
 }
 
+.card-link {
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+}
+
+.card-link:hover {
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-lift);
+  transform: translateY(-2px);
+  text-decoration: none;
+}
+
 .stat-card {
   display: flex;
   align-items: center;
@@ -203,6 +264,36 @@ a:hover { text-decoration: underline; }
   gap: 1.1rem;
 }
 
+.account-card {
+  padding: 0;
+  overflow: hidden;
+}
+
+.account-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.9rem 1.6rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.account-row:last-child {
+  border-bottom: none;
+}
+
+.account-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--color-ink-muted);
+}
+
+.account-value {
+  font-size: 0.92rem;
+  color: var(--color-ink);
+  text-align: right;
+}
+
 /* ---------- Ritual ring (signature element) ---------- */
 .ritual-ring {
   flex-shrink: 0;
@@ -210,7 +301,40 @@ a:hover { text-decoration: underline; }
 
 /* ---------- Forms ---------- */
 .form-card {
-  max-width: 480px;
+  max-width: 560px;
+}
+
+.form-section {
+  margin-bottom: 1.75rem;
+  padding-bottom: 1.75rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.form-section:last-of-type {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.form-section-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-ink);
+  margin: 0 0 1rem;
+  font-family: var(--font-body);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0 1rem;
+}
+
+.form-actions {
+  margin-top: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
 .field {
@@ -280,7 +404,12 @@ input[type="range"] {
   background: var(--color-primary);
   color: #fff;
 }
-.btn-primary:hover { background: var(--color-primary-dark); }
+.btn-primary:hover:not(:disabled) { background: var(--color-primary-dark); }
+
+.btn-primary:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
 
 .btn-block { width: 100%; justify-content: center; }
 
@@ -313,8 +442,17 @@ input[type="range"] {
   border-radius: var(--radius-lg);
   padding: 2.5rem 2.25rem;
   width: 100%;
-  max-width: 380px;
+  max-width: 400px;
   box-shadow: var(--shadow-lift);
+}
+
+.auth-title {
+  font-size: 1.6rem;
+  margin-bottom: 0.35rem;
+}
+
+.auth-subtitle {
+  margin-bottom: 1.5rem;
 }
 
 .auth-eyebrow {
@@ -345,6 +483,31 @@ input[type="range"] {
 }
 .empty-state .ritual-ring { margin: 0 auto 1.25rem; }
 .empty-state p { max-width: 440px; margin-left: auto; margin-right: auto; }
+
+/* ---------- Loading ---------- */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 4rem 1rem;
+  color: var(--color-ink-muted);
+  font-size: 0.9rem;
+}
+
+.loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--color-border);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
 
 /* ---------- Responsive ---------- */
 @media (max-width: 780px) {

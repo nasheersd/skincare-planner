@@ -1,12 +1,22 @@
+import PageHeader from "../components/PageHeader";
+import RitualRing from "../components/RitualRing";
+
 export default function ProductRecommendation() {
   return (
-    <div style={{ padding: "2rem" }}>
-      <h2>Product Recommendations</h2>
-      <p>
-        AI-powered recommendations are not part of Milestone 1. This page is scaffolded
-        and will connect to the recommendation engine in a later milestone, once the
-        product/ingredient catalog and user profile data are in place.
-      </p>
+    <div className="page">
+      <PageHeader
+        eyebrow="Coming in Milestone 2+"
+        title="Product Recommendations"
+        description="AI-powered product suggestions tailored to your skin profile and lifestyle."
+      />
+      <div className="card empty-state">
+        <RitualRing size={72} progress={0.2} color="var(--color-gold)" />
+        <h3>Not available yet</h3>
+        <p>
+          Recommendations will connect to the product and ingredient catalog once the
+          recommendation engine is built in a later milestone.
+        </p>
+      </div>
     </div>
   );
 }

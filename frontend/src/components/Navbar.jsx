@@ -2,11 +2,11 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 const links = [
-  { to: "/dashboard", label: "Dashboard" },
-  { to: "/skin-profile", label: "Skin Profile" },
-  { to: "/skin-assessment", label: "Assessment" },
-  { to: "/recommendations", label: "Recommendations" },
-  { to: "/progress", label: "Progress" },
+  { to: "/dashboard", label: "Dashboard", icon: "◈" },
+  { to: "/skin-profile", label: "Skin Profile", icon: "◎" },
+  { to: "/skin-assessment", label: "Assessment", icon: "◷" },
+  { to: "/recommendations", label: "Recommendations", icon: "✦" },
+  { to: "/progress", label: "Progress", icon: "↗" },
 ];
 
 export default function Navbar() {
@@ -20,15 +20,18 @@ export default function Navbar() {
 
   return (
     <aside className="sidebar">
-      <div className="brand">Skincare Planner</div>
-      <nav className="nav-links">
+      <div className="brand">
+        Skincare Planner
+        <span className="brand-tagline">AI-powered routines</span>
+      </div>
+      <nav className="nav-links" aria-label="Main navigation">
         {links.map((link) => (
           <NavLink
             key={link.to}
             to={link.to}
             className={({ isActive }) => `nav-link${isActive ? " active" : ""}`}
           >
-            <span className="nav-dot" />
+            <span className="nav-icon" aria-hidden="true">{link.icon}</span>
             {link.label}
           </NavLink>
         ))}
