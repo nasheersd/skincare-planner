@@ -50,6 +50,9 @@ class DermatologistContactOut(BaseModel):
     clinic_name: Optional[str] = None
     specialty: Optional[str] = None
     bio: Optional[str] = None
+    address: Optional[str] = None
+    website: Optional[str] = None
+    accepting_new_patients: bool = True
 
     class Config:
         from_attributes = True

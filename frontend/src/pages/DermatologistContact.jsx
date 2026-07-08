@@ -32,8 +32,14 @@ function DermatologistCard({ doctor, isAssigned, onSelect, selecting }) {
 
       <div className="contact-details">
         <ContactDetail label="Clinic" value={doctor.clinic_name} />
+        <ContactDetail label="Address" value={doctor.address} />
         <ContactDetail label="Email" value={doctor.email} href={`mailto:${doctor.email}`} />
         <ContactDetail label="Phone" value={doctor.phone} href={doctor.phone ? `tel:${doctor.phone.replace(/[^\d+]/g, "")}` : undefined} />
+        <ContactDetail
+          label="Website"
+          value={doctor.website?.startsWith("http") ? "Visit website" : doctor.website}
+          href={doctor.website?.startsWith("http") ? doctor.website : doctor.website?.startsWith("mailto:") ? doctor.website : undefined}
+        />
       </div>
 
       {!isAssigned && onSelect && (

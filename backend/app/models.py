@@ -60,6 +60,9 @@ class DermatologistProfile(Base):
     clinic_name = Column(String(200), nullable=True)
     specialty = Column(String(150), nullable=True)
     bio = Column(Text, nullable=True)
+    address = Column(String(500), nullable=True)
+    website = Column(String(500), nullable=True)
+    accepting_new_patients = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 

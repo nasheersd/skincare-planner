@@ -19,6 +19,9 @@ def _to_contact(user: models.User) -> schemas.DermatologistContactOut:
         clinic_name=profile.clinic_name if profile else None,
         specialty=profile.specialty if profile else None,
         bio=profile.bio if profile else None,
+        address=profile.address if profile else None,
+        website=profile.website if profile else None,
+        accepting_new_patients=profile.accepting_new_patients if profile else True,
     )
 
 
