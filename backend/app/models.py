@@ -23,6 +23,12 @@ class RoleEnum(str, enum.Enum):
     administrator = "administrator"
 
 
+class AppointmentStatusEnum(str, enum.Enum):
+    pending = "pending"
+    accepted = "accepted"
+    declined = "declined"
+
+
 class SkinTypeEnum(str, enum.Enum):
     oily = "oily"
     dry = "dry"
@@ -49,6 +55,18 @@ class User(Base):
     progress_entries = relationship("ProgressEntry", back_populates="user", cascade="all, delete-orphan")
     dermatologist_profile = relationship("DermatologistProfile", back_populates="user", uselist=False, cascade="all, delete-orphan")
     assigned_dermatologist = relationship("User", remote_side=[id], foreign_keys=[assigned_dermatologist_id])
+    sent_appointment_requests = relationship(
+        "AppointmentRequest",
+        back_populates="patient",
+        foreign_keys="AppointmentRequest.patient_user_id",
+        cascade="all, delete-orphan",
+    )
+    received_appointment_requests = relationship(
+        "AppointmentRequest",
+        back_populates="dermatologist",
+        foreign_keys="AppointmentRequest.dermatologist_user_id",
+        cascade="all, delete-orphan",
+    )
 
 
 class DermatologistProfile(Base):
@@ -126,3 +144,24 @@ class ProgressEntry(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
     user = relationship("User", back_populates="progress_entries")
+
+
+class AppointmentRequest(Base):
+    __tablename__ = "appointments"
+
+    id = Column(UUID(as_uuid=False), primary_key=True, default=gen_uuid)
+    patient_user_id = Column(UUID(as_uuid=False), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    dermatologist_user_id = Column(UUID(as_uuid=False), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    status = Column(Enum(AppointmentStatusEnum), nullable=False, default=AppointmentStatusEnum.pending)
+    request_message = Column(Text, nullable=True)
+    response_message = Column(Text, nullable=True)
+    reviewed_at = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+    patient = relationship("User", back_populates="sent_appointment_requests", foreign_keys=[patient_user_id])
+    dermatologist = relationship(
+        "User",
+        back_populates="received_appointment_requests",
+        foreign_keys=[dermatologist_user_id],
+    )

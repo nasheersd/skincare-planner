@@ -2,7 +2,7 @@ from datetime import datetime, date
 from typing import Optional
 from pydantic import BaseModel, EmailStr, Field
 
-from app.models import RoleEnum, SkinTypeEnum
+from app.models import AppointmentStatusEnum, RoleEnum, SkinTypeEnum
 
 
 # ---------- Auth ----------
@@ -60,6 +60,32 @@ class DermatologistContactOut(BaseModel):
 
 class AssignDermatologistIn(BaseModel):
     dermatologist_id: str
+
+
+# ---------- Appointments ----------
+class AppointmentRequestCreate(BaseModel):
+    request_message: Optional[str] = Field(None, max_length=1000)
+
+
+class AppointmentDecisionIn(BaseModel):
+    status: AppointmentStatusEnum
+    response_message: Optional[str] = Field(None, max_length=1000)
+
+
+class AppointmentRequestOut(BaseModel):
+    id: str
+    patient_user_id: str
+    patient_name: str
+    patient_email: EmailStr
+    dermatologist_user_id: str
+    dermatologist_name: str
+    dermatologist_email: EmailStr
+    status: AppointmentStatusEnum
+    request_message: Optional[str] = None
+    response_message: Optional[str] = None
+    reviewed_at: Optional[datetime] = None
+    created_at: datetime
+    updated_at: datetime
 
 
 # ---------- Skin Profile ----------
