@@ -62,6 +62,38 @@ class AssignDermatologistIn(BaseModel):
     dermatologist_id: str
 
 
+class DermatologistProfileIn(BaseModel):
+    phone: Optional[str] = Field(None, max_length=30)
+    clinic_name: Optional[str] = Field(None, max_length=200)
+    specialty: Optional[str] = Field(None, max_length=150)
+    bio: Optional[str] = None
+    address: Optional[str] = Field(None, max_length=500)
+    website: Optional[str] = Field(None, max_length=500)
+    accepting_new_patients: bool = True
+
+
+class DermatologistProfileOut(DermatologistProfileIn):
+    id: str
+    user_id: str
+    full_name: str
+    email: EmailStr
+
+
+class ConsultantProfileIn(BaseModel):
+    phone: Optional[str] = Field(None, max_length=30)
+    organization_name: Optional[str] = Field(None, max_length=200)
+    specialization: Optional[str] = Field(None, max_length=150)
+    bio: Optional[str] = None
+    website: Optional[str] = Field(None, max_length=500)
+
+
+class ConsultantProfileOut(ConsultantProfileIn):
+    id: str
+    user_id: str
+    full_name: str
+    email: EmailStr
+
+
 # ---------- Appointments ----------
 class AppointmentRequestCreate(BaseModel):
     request_message: Optional[str] = Field(None, max_length=1000)
@@ -124,6 +156,52 @@ class LifestyleEntryOut(LifestyleEntryIn):
 
     class Config:
         from_attributes = True
+
+
+# ---------- Progress ----------
+class ProgressEntryIn(BaseModel):
+    entry_date: date
+    notes: Optional[str] = None
+    photo_url: Optional[str] = Field(None, max_length=500)
+    hydration_score: Optional[int] = Field(None, ge=0, le=10)
+    breakout_count: Optional[int] = Field(None, ge=0)
+
+
+class ProgressEntryOut(ProgressEntryIn):
+    id: str
+    user_id: str
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+# ---------- Workspace ----------
+class PatientMessageIn(BaseModel):
+    body: str = Field(..., min_length=1, max_length=2000)
+
+
+class PatientMessageOut(BaseModel):
+    id: str
+    dermatologist_user_id: str
+    patient_user_id: str
+    sender_user_id: str
+    sender_name: str
+    recipient_user_id: str
+    recipient_name: str
+    body: str
+    created_at: datetime
+
+
+class DermatologistPatientSummaryOut(BaseModel):
+    id: str
+    full_name: str
+    email: EmailStr
+    skin_profile: Optional[SkinProfileOut] = None
+    lifestyle_entries: list[LifestyleEntryOut]
+    progress_entries: list[ProgressEntryOut]
+    latest_appointment_status: Optional[AppointmentStatusEnum] = None
+    recent_messages: list[PatientMessageOut]
 
 
 # ---------- Product Recommendations ----------

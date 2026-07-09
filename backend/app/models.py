@@ -54,6 +54,7 @@ class User(Base):
     lifestyle_entries = relationship("LifestyleEntry", back_populates="user", cascade="all, delete-orphan")
     progress_entries = relationship("ProgressEntry", back_populates="user", cascade="all, delete-orphan")
     dermatologist_profile = relationship("DermatologistProfile", back_populates="user", uselist=False, cascade="all, delete-orphan")
+    consultant_profile = relationship("ConsultantProfile", back_populates="user", uselist=False, cascade="all, delete-orphan")
     assigned_dermatologist = relationship("User", remote_side=[id], foreign_keys=[assigned_dermatologist_id])
     sent_appointment_requests = relationship(
         "AppointmentRequest",
@@ -65,6 +66,18 @@ class User(Base):
         "AppointmentRequest",
         back_populates="dermatologist",
         foreign_keys="AppointmentRequest.dermatologist_user_id",
+        cascade="all, delete-orphan",
+    )
+    sent_messages = relationship(
+        "PatientMessage",
+        back_populates="sender",
+        foreign_keys="PatientMessage.sender_user_id",
+        cascade="all, delete-orphan",
+    )
+    received_messages = relationship(
+        "PatientMessage",
+        back_populates="recipient",
+        foreign_keys="PatientMessage.recipient_user_id",
         cascade="all, delete-orphan",
     )
 
@@ -85,6 +98,22 @@ class DermatologistProfile(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     user = relationship("User", back_populates="dermatologist_profile")
+
+
+class ConsultantProfile(Base):
+    __tablename__ = "consultant_profiles"
+
+    id = Column(UUID(as_uuid=False), primary_key=True, default=gen_uuid)
+    user_id = Column(UUID(as_uuid=False), ForeignKey("users.id", ondelete="CASCADE"), unique=True, nullable=False)
+    phone = Column(String(30), nullable=True)
+    organization_name = Column(String(200), nullable=True)
+    specialization = Column(String(150), nullable=True)
+    bio = Column(Text, nullable=True)
+    website = Column(String(500), nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    user = relationship("User", back_populates="consultant_profile")
 
 
 class SkinProfile(Base):
@@ -165,3 +194,18 @@ class AppointmentRequest(Base):
         back_populates="received_appointment_requests",
         foreign_keys=[dermatologist_user_id],
     )
+
+
+class PatientMessage(Base):
+    __tablename__ = "patient_messages"
+
+    id = Column(UUID(as_uuid=False), primary_key=True, default=gen_uuid)
+    dermatologist_user_id = Column(UUID(as_uuid=False), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    patient_user_id = Column(UUID(as_uuid=False), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    sender_user_id = Column(UUID(as_uuid=False), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    recipient_user_id = Column(UUID(as_uuid=False), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    body = Column(Text, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+    sender = relationship("User", back_populates="sent_messages", foreign_keys=[sender_user_id])
+    recipient = relationship("User", back_populates="received_messages", foreign_keys=[recipient_user_id])
