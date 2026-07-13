@@ -17,13 +17,15 @@ def get_my_account(current_user: models.User = Depends(get_current_user)):
     return current_user
 
 
-@router.get("/me/dermatologist", response_model=schemas.DermatologistContactOut)
+from typing import Optional
+
+@router.get("/me/dermatologist", response_model=Optional[schemas.DermatologistContactOut])
 def get_my_dermatologist(
     current_user: models.User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     if not current_user.assigned_dermatologist_id:
-        raise HTTPException(status_code=404, detail="No dermatologist assigned yet")
+        return None
 
     dermatologist = (
         db.query(models.User)
@@ -36,7 +38,7 @@ def get_my_dermatologist(
         .first()
     )
     if not dermatologist:
-        raise HTTPException(status_code=404, detail="Assigned dermatologist not found")
+        return None
     return _to_contact(dermatologist)
 
 
