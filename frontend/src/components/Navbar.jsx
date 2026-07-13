@@ -2,26 +2,26 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 const USER_LINKS = [
-  { to: "/dashboard", label: "Dashboard", icon: "◈" },
-  { to: "/skin-profile", label: "Skin Profile", icon: "◎" },
-  { to: "/skin-assessment", label: "Assessment", icon: "◷" },
-  { to: "/dermatologist", label: "Dermatologist", icon: "✚" },
-  { to: "/recommendations", label: "Recommendations", icon: "✦" },
-  { to: "/progress", label: "Progress", icon: "↗" },
+  { to: "/dashboard", label: "Dashboard", icon: "✨" },
+  { to: "/skin-profile", label: "Skin Profile", icon: "🧴" },
+  { to: "/skin-assessment", label: "Assessment", icon: "📝" },
+  { to: "/dermatologist", label: "Dermatologist", icon: "🩺" },
+  { to: "/recommendations", label: "Recommendations", icon: "🛍️" },
+  { to: "/progress", label: "Progress Logs", icon: "📈" },
 ];
 
 const CONSULTANT_LINKS = [
-  { to: "/consultant/dashboard", label: "Dashboard", icon: "◈" },
-  { to: "/consultant/profile", label: "Profile", icon: "◎" },
-  { to: "/consultant/customers", label: "Customers", icon: "◷" },
-  { to: "/consultant/dermatologists", label: "Dermatologists", icon: "✚" },
+  { to: "/consultant/dashboard", label: "Dashboard", icon: "✨" },
+  { to: "/consultant/profile", label: "Profile", icon: "🧴" },
+  { to: "/consultant/customers", label: "Customers", icon: "👥" },
+  { to: "/consultant/dermatologists", label: "Dermatologists", icon: "🩺" },
 ];
 
 const DERMATOLOGIST_LINKS = [
-  { to: "/dermatologist/dashboard", label: "Dashboard", icon: "◈" },
-  { to: "/dermatologist/profile", label: "Profile", icon: "◎" },
-  { to: "/dermatologist/patients", label: "Patients", icon: "◷" },
-  { to: "/dermatologist/appointments", label: "Appointments", icon: "✚" },
+  { to: "/dermatologist/dashboard", label: "Dashboard", icon: "✨" },
+  { to: "/dermatologist/profile", label: "Profile", icon: "🩺" },
+  { to: "/dermatologist/patients", label: "Patients", icon: "👥" },
+  { to: "/dermatologist/appointments", label: "Appointments", icon: "📅" },
   { to: "/dermatologist/consultants", label: "Consultants", icon: "💬" },
 ];
 
