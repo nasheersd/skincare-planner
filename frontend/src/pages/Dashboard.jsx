@@ -112,9 +112,9 @@ export default function Dashboard() {
   return (
     <div className="page dashboard-page">
       <PageHeader
-        eyebrow="Milestone 2 · AI Planner Brain"
+        eyebrow="Milestone 2 · Care Planner"
         title={`Welcome, ${firstName}`}
-        description="Monitor your skin scoring analysis, lifestyle metrics, and daily routine compliance."
+        description="Monitor your skin score, lifestyle metrics, daily routine completion, and care progress."
       />
 
       {error && <div className="status-msg error">{error}</div>}

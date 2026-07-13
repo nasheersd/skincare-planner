@@ -331,3 +331,20 @@ def get_latest_score_breakdown(
     db.refresh(assessment)
     
     return assessment
+
+
+@router.get("/history", response_model=list[schemas.ScoreBreakdownOut])
+def get_assessment_history(
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    GET /api/v1/assessment/history
+    Retrieves all past skin assessment score records for the user.
+    """
+    return (
+        db.query(models.SkinAssessment)
+        .filter(models.SkinAssessment.user_id == current_user.id)
+        .order_by(models.SkinAssessment.created_at.asc())
+        .all()
+    )

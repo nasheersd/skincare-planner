@@ -9,11 +9,15 @@ from app.routers import auth, users, skin_profile, lifestyle, dermatologists, re
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
-    title="AI Skin Intelligence & Personalized Skincare Planner API",
-    description="Milestone 2: Brain - scoring, routines, and assessments.",
+    title="Skin Intelligence & Personalized Skincare Planner API",
+    description="Milestone 2: role-based skincare planning, scoring, routines, recommendations, and professional collaboration.",
     version="0.2.0",
 )
 
+import os
+
+# Ensure static directory exists before mounting
+os.makedirs("static", exist_ok=True)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 app.add_middleware(

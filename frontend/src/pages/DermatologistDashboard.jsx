@@ -84,6 +84,14 @@ export default function DermatologistDashboard() {
             <h3>Open patient progress & messages</h3>
             <p className="stat-note">View patient progress entries and send direct follow-up messages from your private dermatologist page.</p>
           </Link>
+          <Link to="/dermatologist/consultants" className="card card-link">
+            <h3>Consultant collaboration</h3>
+            <p className="stat-note">Coordinate with skincare consultants through a separate professional messaging workspace.</p>
+          </Link>
+          <Link to="/dermatologist/profile" className="card card-link">
+            <h3>Manage dermatologist profile</h3>
+            <p className="stat-note">Update your specialization, clinic details, and professional certificate in your secured profile.</p>
+          </Link>
           <div className="card">
             <h3>Your account</h3>
             <div className="account-row">

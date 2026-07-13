@@ -29,6 +29,7 @@ def _to_dermatologist_profile_out(user: models.User) -> schemas.DermatologistPro
         address=profile.address,
         website=profile.website,
         accepting_new_patients=profile.accepting_new_patients,
+        certificate_url=profile.certificate_url,
     )
 
 
@@ -75,6 +76,45 @@ def _get_dermatologist_patient(db: Session, dermatologist_id: str, patient_id: s
     if not patient:
         raise HTTPException(status_code=404, detail="Patient not found for this dermatologist")
     return patient
+
+
+def _get_professional_participants(db: Session, consultant_id: str, dermatologist_id: str) -> tuple[models.User, models.User]:
+    consultant = (
+        db.query(models.User)
+        .filter(
+            models.User.id == consultant_id,
+            models.User.role == RoleEnum.skincare_consultant,
+            models.User.is_active.is_(True),
+        )
+        .first()
+    )
+    if not consultant:
+        raise HTTPException(status_code=404, detail="Consultant not found")
+
+    dermatologist = (
+        db.query(models.User)
+        .filter(
+            models.User.id == dermatologist_id,
+            models.User.role == RoleEnum.dermatologist,
+            models.User.is_active.is_(True),
+        )
+        .first()
+    )
+    if not dermatologist:
+        raise HTTPException(status_code=404, detail="Dermatologist not found")
+
+    return consultant, dermatologist
+
+
+def _validate_professional_thread_access(
+    current_user: models.User,
+    consultant_id: str,
+    dermatologist_id: str,
+) -> None:
+    if current_user.role == RoleEnum.skincare_consultant and current_user.id != consultant_id:
+        raise HTTPException(status_code=403, detail="Consultants can access only their own professional messages")
+    if current_user.role == RoleEnum.dermatologist and current_user.id != dermatologist_id:
+        raise HTTPException(status_code=403, detail="Dermatologists can access only their own professional messages")
 
 
 @router.get(
@@ -517,6 +557,8 @@ def get_professional_messages(
 ):
     if current_user.role not in [RoleEnum.skincare_consultant, RoleEnum.dermatologist]:
         raise HTTPException(status_code=403, detail="Access denied.")
+    _validate_professional_thread_access(current_user, consultant_id, dermatologist_id)
+    _get_professional_participants(db, consultant_id, dermatologist_id)
         
     messages = db.query(models.ProfessionalMessage).options(
         joinedload(models.ProfessionalMessage.sender),
@@ -540,6 +582,8 @@ def send_professional_message(
 ):
     if current_user.role not in [RoleEnum.skincare_consultant, RoleEnum.dermatologist]:
         raise HTTPException(status_code=403, detail="Access denied.")
+    _validate_professional_thread_access(current_user, consultant_id, dermatologist_id)
+    _get_professional_participants(db, consultant_id, dermatologist_id)
         
     message = models.ProfessionalMessage(
         consultant_id=consultant_id,

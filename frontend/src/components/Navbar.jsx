@@ -43,7 +43,7 @@ export default function Navbar() {
     <aside className="sidebar">
       <div className="brand">
         Skincare Planner
-        <span className="brand-tagline">AI-powered routines</span>
+        <span className="brand-tagline">Personalized care planning</span>
       </div>
       <nav className="nav-links" aria-label="Main navigation">
         {links.map((link) => (

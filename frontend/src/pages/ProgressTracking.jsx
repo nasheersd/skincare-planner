@@ -11,6 +11,7 @@ function formatDate(value) {
 export default function ProgressTracking() {
   const [entries, setEntries] = useState([]);
   const [assignedDermatologist, setAssignedDermatologist] = useState(null);
+  const [scoreHistory, setScoreHistory] = useState([]);
   const [form, setForm] = useState({
     entry_date: new Date().toISOString().slice(0, 10),
     hydration_score: "",
@@ -22,22 +23,24 @@ export default function ProgressTracking() {
   const [saving, setSaving] = useState(false);
   const [status, setStatus] = useState(null);
 
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        const [entriesRes, dermatologistRes] = await Promise.all([
-          api.get("/progress/"),
-          api.get("/users/me/dermatologist").catch(() => ({ data: null })),
-        ]);
-        setEntries(entriesRes.data);
-        setAssignedDermatologist(dermatologistRes.data);
-      } catch {
-        setStatus({ type: "error", text: "Couldn't load your progress timeline." });
-      } finally {
-        setLoading(false);
-      }
-    };
+  const loadData = async () => {
+    try {
+      const [entriesRes, dermatologistRes, historyRes] = await Promise.all([
+        api.get("/progress/"),
+        api.get("/users/me/dermatologist").catch(() => ({ data: null })),
+        api.get("/v1/assessment/history").catch(() => ({ data: [] })),
+      ]);
+      setEntries(entriesRes.data);
+      setAssignedDermatologist(dermatologistRes.data);
+      setScoreHistory(historyRes.data);
+    } catch {
+      setStatus({ type: "error", text: "Couldn't load your progress timeline." });
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     loadData();
   }, []);
 
@@ -87,6 +90,74 @@ export default function ProgressTracking() {
 
   const latestEntry = entries[0] || null;
 
+  const renderScoreChart = () => {
+    if (scoreHistory.length < 2) {
+      return (
+        <div style={{ textAlign: "center", padding: "1.5rem", color: "var(--color-fg-muted)" }}>
+          <p className="hint">Complete multiple skin assessments over time to generate a trend graph of your overall Skin Health Score.</p>
+        </div>
+      );
+    }
+
+    const width = 600;
+    const height = 200;
+    const paddingLeft = 40;
+    const paddingRight = 30;
+    const paddingTop = 30;
+    const paddingBottom = 30;
+
+    // Scale calculations
+    const scores = scoreHistory.map((h) => h.overall_score);
+    const maxScore = 100;
+    const minScore = 0;
+
+    const points = scoreHistory
+      .map((h, i) => {
+        const x = paddingLeft + (i / (scoreHistory.length - 1)) * (width - paddingLeft - paddingRight);
+        const y = height - paddingBottom - ((h.overall_score - minScore) / (maxScore - minScore)) * (height - paddingTop - paddingBottom);
+        return `${x},${y}`;
+      })
+      .join(" ");
+
+    return (
+      <div style={{ width: "100%", overflowX: "auto" }}>
+        <svg viewBox={`0 0 ${width} ${height}`} style={{ width: "100%", minWidth: "500px", height: "auto" }}>
+          {/* Grid lines */}
+          {[20, 40, 60, 80, 100].map((level) => {
+            const y = height - paddingBottom - ((level - minScore) / (maxScore - minScore)) * (height - paddingTop - paddingBottom);
+            return (
+              <g key={level}>
+                <line x1={paddingLeft} y1={y} x2={width - paddingRight} y2={y} stroke="var(--color-border)" strokeDasharray="3,3" />
+                <text x={paddingLeft - 8} y={y + 4} textAnchor="end" fontSize="10" fill="var(--color-fg-muted)">{level}</text>
+              </g>
+            );
+          })}
+
+          {/* Trend line */}
+          <polyline fill="none" stroke="var(--color-gold)" strokeWidth="3" points={points} />
+
+          {/* Value circles & labels */}
+          {scoreHistory.map((h, i) => {
+            const x = paddingLeft + (i / (scoreHistory.length - 1)) * (width - paddingLeft - paddingRight);
+            const y = height - paddingBottom - ((h.overall_score - minScore) / (maxScore - minScore)) * (height - paddingTop - paddingBottom);
+            const formattedDate = new Date(h.created_at).toLocaleDateString(undefined, { month: "short", day: "numeric" });
+            return (
+              <g key={h.id}>
+                <circle cx={x} cy={y} r="5" fill="var(--color-primary)" stroke="var(--color-gold)" strokeWidth="2.5" />
+                <text x={x} y={y - 10} textAnchor="middle" fontSize="10" fontWeight="bold" fill="var(--color-gold)">
+                  {Math.round(h.overall_score)}
+                </text>
+                <text x={x} y={height - 8} textAnchor="middle" fontSize="9" fill="var(--color-fg-muted)">
+                  {formattedDate}
+                </text>
+              </g>
+            );
+          })}
+        </svg>
+      </div>
+    );
+  };
+
   if (loading) return <LoadingState label="Loading your progress timeline…" />;
 
   return (
@@ -121,6 +192,14 @@ export default function ProgressTracking() {
               {assignedDermatologist ? "You can message them from the dermatologist page." : "Assign a dermatologist to share progress and start messaging."}
             </p>
           </div>
+        </div>
+      </section>
+
+      {/* Skin Health Score Trend Chart Section */}
+      <section className="section">
+        <h2 className="section-title">Skin Health Score History</h2>
+        <div className="card" style={{ padding: "1.5rem" }}>
+          {renderScoreChart()}
         </div>
       </section>
 
