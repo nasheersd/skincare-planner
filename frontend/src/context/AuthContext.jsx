@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import api from "../api/axios";
 
 const AuthContext = createContext(null);
@@ -6,6 +6,43 @@ const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(localStorage.getItem("access_token"));
+  const [authLoading, setAuthLoading] = useState(Boolean(localStorage.getItem("access_token")));
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadUser = async () => {
+      if (!token) {
+        setUser(null);
+        setAuthLoading(false);
+        return;
+      }
+
+      setAuthLoading(true);
+      try {
+        const me = await api.get("/users/me");
+        if (isMounted) {
+          setUser(me.data);
+        }
+      } catch {
+        localStorage.removeItem("access_token");
+        if (isMounted) {
+          setToken(null);
+          setUser(null);
+        }
+      } finally {
+        if (isMounted) {
+          setAuthLoading(false);
+        }
+      }
+    };
+
+    loadUser();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [token]);
 
   const login = async (email, password) => {
     const form = new URLSearchParams();
@@ -36,10 +73,11 @@ export function AuthProvider({ children }) {
     localStorage.removeItem("access_token");
     setToken(null);
     setUser(null);
+    setAuthLoading(false);
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, register, logout }}>
+    <AuthContext.Provider value={{ user, token, authLoading, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   );

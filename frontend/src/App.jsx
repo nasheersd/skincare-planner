@@ -1,11 +1,19 @@
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
+import { useAuth } from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Navbar from "./components/Navbar";
+import LoadingState from "./components/LoadingState";
 
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
+import ConsultantDashboard from "./pages/ConsultantDashboard";
+import ConsultantProfile from "./pages/ConsultantProfile";
+import DermatologistDashboard from "./pages/DermatologistDashboard";
+import DermatologistAppointments from "./pages/DermatologistAppointments";
+import DermatologistPatients from "./pages/DermatologistPatients";
+import DermatologistProfile from "./pages/DermatologistProfile";
 import SkinProfile from "./pages/SkinProfile";
 import SkinAssessment from "./pages/SkinAssessment";
 import ProductRecommendation from "./pages/ProductRecommendation";
@@ -26,21 +34,73 @@ function Layout({ children }) {
   );
 }
 
+function HomeRedirect() {
+  const { token, user, authLoading } = useAuth();
+
+  if (authLoading) return <LoadingState label="Loading your workspace…" />;
+  if (!token) return <Navigate to="/login" replace />;
+  if (user?.role === "dermatologist") return <Navigate to="/dermatologist/dashboard" replace />;
+  if (user?.role === "skincare_consultant") return <Navigate to="/consultant/dashboard" replace />;
+  return <Navigate to="/dashboard" replace />;
+}
+
 export default function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
         <Layout>
           <Routes>
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/" element={<HomeRedirect />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-            <Route path="/skin-profile" element={<ProtectedRoute><SkinProfile /></ProtectedRoute>} />
-            <Route path="/skin-assessment" element={<ProtectedRoute><SkinAssessment /></ProtectedRoute>} />
-            <Route path="/dermatologist" element={<ProtectedRoute><DermatologistContact /></ProtectedRoute>} />
-            <Route path="/recommendations" element={<ProtectedRoute><ProductRecommendation /></ProtectedRoute>} />
-            <Route path="/progress" element={<ProtectedRoute><ProgressTracking /></ProtectedRoute>} />
+            <Route
+              path="/dashboard"
+              element={<ProtectedRoute allowedRoles={["user", "administrator"]}><Dashboard /></ProtectedRoute>}
+            />
+            <Route
+              path="/consultant/dashboard"
+              element={<ProtectedRoute allowedRoles={["skincare_consultant"]}><ConsultantDashboard /></ProtectedRoute>}
+            />
+            <Route
+              path="/consultant/profile"
+              element={<ProtectedRoute allowedRoles={["skincare_consultant"]}><ConsultantProfile /></ProtectedRoute>}
+            />
+            <Route
+              path="/dermatologist/dashboard"
+              element={<ProtectedRoute allowedRoles={["dermatologist"]}><DermatologistDashboard /></ProtectedRoute>}
+            />
+            <Route
+              path="/dermatologist/profile"
+              element={<ProtectedRoute allowedRoles={["dermatologist"]}><DermatologistProfile /></ProtectedRoute>}
+            />
+            <Route
+              path="/dermatologist/patients"
+              element={<ProtectedRoute allowedRoles={["dermatologist"]}><DermatologistPatients /></ProtectedRoute>}
+            />
+            <Route
+              path="/dermatologist/appointments"
+              element={<ProtectedRoute allowedRoles={["dermatologist"]}><DermatologistAppointments /></ProtectedRoute>}
+            />
+            <Route
+              path="/skin-profile"
+              element={<ProtectedRoute allowedRoles={["user", "administrator"]}><SkinProfile /></ProtectedRoute>}
+            />
+            <Route
+              path="/skin-assessment"
+              element={<ProtectedRoute allowedRoles={["user", "administrator"]}><SkinAssessment /></ProtectedRoute>}
+            />
+            <Route
+              path="/dermatologist"
+              element={<ProtectedRoute allowedRoles={["user", "administrator"]}><DermatologistContact /></ProtectedRoute>}
+            />
+            <Route
+              path="/recommendations"
+              element={<ProtectedRoute allowedRoles={["user", "administrator"]}><ProductRecommendation /></ProtectedRoute>}
+            />
+            <Route
+              path="/progress"
+              element={<ProtectedRoute allowedRoles={["user", "administrator"]}><ProgressTracking /></ProtectedRoute>}
+            />
           </Routes>
         </Layout>
       </BrowserRouter>

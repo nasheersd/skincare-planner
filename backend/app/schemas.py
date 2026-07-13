@@ -222,3 +222,57 @@ class RecommendationsOut(BaseModel):
     skin_type: str
     skin_concerns: list[str]
     recommendations: list[ProductRecommendationOut]
+
+
+# ---------- Milestone 2: Assessment & Routine ----------
+class ConcernSeverityIn(BaseModel):
+    concern: str
+    severity: str  # "low", "medium", "high"
+    is_active_flareup: bool = False
+
+
+class AssessmentEvaluateIn(BaseModel):
+    skin_type: SkinTypeEnum
+    concerns: list[ConcernSeverityIn] = []
+    sleep_hours: float
+    water_intake_liters: float
+    environmental_exposure: Optional[str] = None
+    stress_level: int
+    allergies: Optional[str] = None
+    skin_sensitivities: Optional[str] = None
+
+
+class ScoreBreakdownOut(BaseModel):
+    id: str
+    user_id: str
+    overall_score: float
+    skin_condition_score: float
+    lifestyle_score: float
+    sleep_score: float
+    consistency_score: float
+    hydration_score: float
+    detected_concerns: Optional[list[str]] = None
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class SkincareRoutineStepOut(BaseModel):
+    id: str
+    user_id: str
+    assessment_id: Optional[str] = None
+    time_of_day: str
+    step_number: int
+    step_category: str
+    is_active: bool
+
+    class Config:
+        from_attributes = True
+
+
+class RoutineStepLogIn(BaseModel):
+    routine_step_id: str
+    completed: bool
+    log_date: Optional[str] = None  # YYYY-MM-DD
+

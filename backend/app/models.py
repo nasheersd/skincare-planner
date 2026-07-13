@@ -4,7 +4,7 @@ from datetime import datetime, date
 
 from sqlalchemy import (
     Column, String, Integer, Float, Boolean, Date, DateTime,
-    ForeignKey, Enum, Text, UniqueConstraint
+    ForeignKey, Enum, Text, UniqueConstraint, JSON
 )
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
@@ -209,3 +209,37 @@ class PatientMessage(Base):
 
     sender = relationship("User", back_populates="sent_messages", foreign_keys=[sender_user_id])
     recipient = relationship("User", back_populates="received_messages", foreign_keys=[recipient_user_id])
+
+
+class SkinAssessment(Base):
+    __tablename__ = "skin_assessments"
+
+    id = Column(UUID(as_uuid=False), primary_key=True, default=gen_uuid)
+    user_id = Column(UUID(as_uuid=False), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    overall_score = Column(Float, nullable=False)
+    skin_condition_score = Column(Float, nullable=False)
+    lifestyle_score = Column(Float, nullable=False)
+    sleep_score = Column(Float, nullable=False)
+    consistency_score = Column(Float, nullable=False)
+    hydration_score = Column(Float, nullable=False)
+    detected_concerns = Column(JSON, nullable=True)  # List of concerns, e.g. ["Acne", "Dry Skin"]
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+    user = relationship("User", backref="skin_assessments")
+
+
+class SkincareRoutine(Base):
+    __tablename__ = "skincare_routines"
+
+    id = Column(UUID(as_uuid=False), primary_key=True, default=gen_uuid)
+    user_id = Column(UUID(as_uuid=False), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    assessment_id = Column(UUID(as_uuid=False), ForeignKey("skin_assessments.id", ondelete="SET NULL"), nullable=True)
+    time_of_day = Column(String(50), nullable=False)  # "AM", "PM", or "Weekly"
+    step_number = Column(Integer, nullable=False)
+    step_category = Column(String(100), nullable=False)  # Cleansing, Treatment, Moisturizing, Sun Protection, etc.
+    is_active = Column(Boolean, default=True, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+    user = relationship("User", backref="skincare_routines")
+    assessment = relationship("SkinAssessment", backref="skincare_routines")
+

@@ -1,7 +1,7 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
-const links = [
+const USER_LINKS = [
   { to: "/dashboard", label: "Dashboard", icon: "◈" },
   { to: "/skin-profile", label: "Skin Profile", icon: "◎" },
   { to: "/skin-assessment", label: "Assessment", icon: "◷" },
@@ -10,9 +10,26 @@ const links = [
   { to: "/progress", label: "Progress", icon: "↗" },
 ];
 
+const CONSULTANT_LINKS = [
+  { to: "/consultant/dashboard", label: "Dashboard", icon: "◈" },
+  { to: "/consultant/profile", label: "Profile", icon: "◎" },
+];
+
+const DERMATOLOGIST_LINKS = [
+  { to: "/dermatologist/dashboard", label: "Dashboard", icon: "◈" },
+  { to: "/dermatologist/profile", label: "Profile", icon: "◎" },
+  { to: "/dermatologist/patients", label: "Patients", icon: "◷" },
+  { to: "/dermatologist/appointments", label: "Appointments", icon: "✚" },
+];
+
 export default function Navbar() {
-  const { token, logout } = useAuth();
+  const { token, user, logout } = useAuth();
   const navigate = useNavigate();
+  const links = user?.role === "dermatologist"
+    ? DERMATOLOGIST_LINKS
+    : user?.role === "skincare_consultant"
+      ? CONSULTANT_LINKS
+      : USER_LINKS;
 
   const handleLogout = () => {
     logout();

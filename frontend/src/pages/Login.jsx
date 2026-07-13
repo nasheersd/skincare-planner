@@ -16,8 +16,14 @@ export default function Login() {
     setError("");
     setLoading(true);
     try {
-      await login(email, password);
-      navigate("/dashboard");
+      const me = await login(email, password);
+      if (me.role === "dermatologist") {
+        navigate("/dermatologist/dashboard");
+      } else if (me.role === "skincare_consultant") {
+        navigate("/consultant/dashboard");
+      } else {
+        navigate("/dashboard");
+      }
     } catch (err) {
       setError(err.response?.data?.detail || "We couldn't sign you in. Check your details and try again.");
     } finally {
