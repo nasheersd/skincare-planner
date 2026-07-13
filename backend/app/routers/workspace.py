@@ -117,9 +117,11 @@ def _validate_professional_thread_access(
         raise HTTPException(status_code=403, detail="Dermatologists can access only their own professional messages")
 
 
+from typing import Optional
+
 @router.get(
     "/dermatologist-profile",
-    response_model=schemas.DermatologistProfileOut,
+    response_model=Optional[schemas.DermatologistProfileOut],
     dependencies=[Depends(require_dermatologist_workspace)],
 )
 def get_my_dermatologist_profile(
@@ -133,7 +135,7 @@ def get_my_dermatologist_profile(
         .first()
     )
     if not user or not user.dermatologist_profile:
-        raise HTTPException(status_code=404, detail="Dermatologist profile not found")
+        return None
     return _to_dermatologist_profile_out(user)
 
 
@@ -166,7 +168,7 @@ def upsert_my_dermatologist_profile(
 
 @router.get(
     "/consultant-profile",
-    response_model=schemas.ConsultantProfileOut,
+    response_model=Optional[schemas.ConsultantProfileOut],
     dependencies=[Depends(require_consultant_workspace)],
 )
 def get_my_consultant_profile(
@@ -180,7 +182,7 @@ def get_my_consultant_profile(
         .first()
     )
     if not user or not user.consultant_profile:
-        raise HTTPException(status_code=404, detail="Consultant profile not found")
+        return None
     return _to_consultant_profile_out(user)
 
 
