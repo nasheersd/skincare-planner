@@ -133,5 +133,32 @@
     "key_ingredients": ["Zinc Oxide"],
     "price_inr": 549,
     "description": "Broad-spectrum, non-greasy mineral sunscreen suitable for all skin types, including sensitive skin."
+  },
+  {
+    "name": "Hyaluronic Acid Hydrating Serum",
+    "brand": "WaterGlow",
+    "category": "Serum",
+    "suitable_skin_types": ["dry", "sensitive", "normal"],
+    "key_ingredients": ["Hyaluronic Acid"],
+    "price_inr": 599,
+    "description": "A deep hydrating serum that plumps skin, locks in moisture, and eliminates dry skin flaking."
+  },
+  {
+    "name": "Ceramide Barrier Moisture Balm",
+    "brand": "RestoreLab",
+    "category": "Moisturizer",
+    "suitable_skin_types": ["dry", "sensitive"],
+    "key_ingredients": ["Ceramides", "Squalane"],
+    "price_inr": 799,
+    "description": "Intense rich moisture balm that prevents transepidermal water loss and heals extra dry skin."
+  },
+  {
+    "name": "Squalane Nourishing Face Oil",
+    "brand": "PureGlow",
+    "category": "Moisturizer",
+    "suitable_skin_types": ["dry", "normal", "sensitive"],
+    "key_ingredients": ["Squalane"],
+    "price_inr": 699,
+    "description": "100% plant-derived squalane nourishing oil that deeply hydrates dry skin for a radiant, dewy finish."
   }
 ]
