@@ -89,8 +89,9 @@ export default function DermatologistContact() {
       setAssigned(assignedRes.data);
       setRequests(requestsRes.data);
       setProgressEntries(progressRes.data);
-    } catch {
-      setStatus({ type: "error", text: "Couldn't load dermatologist contacts." });
+    } catch (err) {
+      console.error("DermatologistContact loadData error:", err);
+      setStatus({ type: "error", text: `Couldn't load dermatologist contacts: ${err.message || err}` });
     } finally {
       setLoading(false);
     }
