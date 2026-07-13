@@ -25,6 +25,9 @@ export default function Register() {
   // Consultant extra fields
   const [specialization, setSpecialization] = useState("");
   const [organizationName, setOrganizationName] = useState("");
+  const [consultantPhone, setConsultantPhone] = useState("");
+  const [consultantWebsite, setConsultantWebsite] = useState("");
+  const [consultantBio, setConsultantBio] = useState("");
 
   const { register, login } = useAuth();
   const navigate = useNavigate();
@@ -83,11 +86,11 @@ export default function Register() {
       // 4. Handle consultant profile setup
       else if (role === "skincare_consultant") {
         await api.put("/workspace/consultant-profile", {
-          phone: phone || null,
+          phone: consultantPhone || null,
           organization_name: organizationName || null,
           specialization: specialization || null,
-          bio: bio || null,
-          website: website || null,
+          bio: consultantBio || null,
+          website: consultantWebsite || null,
         });
 
         setSuccess(true);
@@ -183,16 +186,16 @@ export default function Register() {
                 <input id="organizationName" value={organizationName} onChange={(e) => setOrganizationName(e.target.value)} placeholder="e.g. Glow Aesthetics" />
               </div>
               <div className="field">
-                <label htmlFor="phone">Phone Number</label>
-                <input id="phone" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="e.g. +1 (555) 987-6543" />
+                <label htmlFor="consultantPhone">Phone Number</label>
+                <input id="consultantPhone" value={consultantPhone} onChange={(e) => setConsultantPhone(e.target.value)} placeholder="e.g. +1 (555) 987-6543" />
               </div>
               <div className="field">
-                <label htmlFor="website">Website</label>
-                <input id="website" type="url" value={website} onChange={(e) => setWebsite(e.target.value)} placeholder="https://example.com" />
+                <label htmlFor="consultantWebsite">Website</label>
+                <input id="consultantWebsite" type="url" value={consultantWebsite} onChange={(e) => setConsultantWebsite(e.target.value)} placeholder="https://example.com" />
               </div>
               <div className="field">
-                <label htmlFor="bio">Consultant Bio</label>
-                <textarea id="bio" rows="3" value={bio} onChange={(e) => setBio(e.target.value)} placeholder="Describe your skincare consultation approach..." />
+                <label htmlFor="consultantBio">Consultant Bio</label>
+                <textarea id="consultantBio" rows="3" value={consultantBio} onChange={(e) => setConsultantBio(e.target.value)} placeholder="Describe your skincare consultation approach..." />
               </div>
             </div>
           )}
