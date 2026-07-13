@@ -10,6 +10,7 @@ export default function Dashboard() {
   const [routine, setRoutine] = useState([]);
   const [completedStepIds, setCompletedStepIds] = useState([]);
   const [scoreData, setScoreData] = useState(null);
+  const [lifestyleEntries, setLifestyleEntries] = useState([]);
   
   const [loading, setLoading] = useState(true);
   const [needsAssessment, setNeedsAssessment] = useState(false);
@@ -51,6 +52,10 @@ export default function Dashboard() {
       const logsRes = await api.get(`/v1/routine/logs?log_date=${todayStr}`);
       const completedIds = (logsRes.data?.completed_steps || []).map((step) => step.routine_step_id);
       setCompletedStepIds(completedIds);
+
+      // 5. Fetch lifestyle entries
+      const lifestyleRes = await api.get("/lifestyle/").catch(() => ({ data: [] }));
+      setLifestyleEntries(lifestyleRes.data);
       
       setNeedsAssessment(false);
     } catch (err) {
@@ -98,6 +103,67 @@ export default function Dashboard() {
     }
   };
 
+  const handleHabitChange = async (type, increment) => {
+    if (actionLoading) return;
+    setActionLoading(true);
+    setError("");
+
+    try {
+      const todayStr = new Date().toISOString().slice(0, 10);
+      let todayEntry = lifestyleEntries.find(e => e.entry_date === todayStr);
+
+      let sleepVal = 8.0;
+      let waterVal = 2.0;
+      let stressVal = 3;
+      let envVal = "normal indoor";
+
+      if (todayEntry) {
+        sleepVal = todayEntry.sleep_hours;
+        waterVal = todayEntry.water_intake_liters;
+        stressVal = todayEntry.stress_level;
+        envVal = todayEntry.environmental_exposure;
+      }
+
+      if (type === "water") {
+        waterVal = Math.max(0, waterVal + increment);
+      } else if (type === "sleep") {
+        sleepVal = Math.max(0, sleepVal + increment);
+      }
+
+      let res;
+      if (todayEntry) {
+        res = await api.put(`/lifestyle/${todayEntry.id}`, {
+          entry_date: todayStr,
+          sleep_hours: sleepVal,
+          water_intake_liters: waterVal,
+          stress_level: stressVal,
+          environmental_exposure: envVal
+        });
+      } else {
+        res = await api.post("/lifestyle/", {
+          entry_date: todayStr,
+          sleep_hours: sleepVal,
+          water_intake_liters: waterVal,
+          stress_level: stressVal,
+          environmental_exposure: envVal
+        });
+      }
+
+      setLifestyleEntries(prev => {
+        const filtered = prev.filter(e => e.entry_date !== todayStr);
+        return [res.data, ...filtered];
+      });
+
+      // Re-fetch score breakdown to show real-time score updates
+      const scoreRes = await api.get("/v1/assessment/score");
+      setScoreData(scoreRes.data);
+    } catch (err) {
+      setError("Failed to update daily habits. Please try again.");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   if (loading) return <LoadingState label="Loading your customized dashboard…" />;
   if (me?.role === "dermatologist") return <Navigate to="/dermatologist/dashboard" replace />;
   if (me?.role === "skincare_consultant") return <Navigate to="/consultant/dashboard" replace />;
@@ -108,6 +174,11 @@ export default function Dashboard() {
   const amSteps = routine.filter((s) => s.time_of_day === "AM");
   const pmSteps = routine.filter((s) => s.time_of_day === "PM");
   const weeklySteps = routine.filter((s) => s.time_of_day === "Weekly");
+
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const todayHabit = lifestyleEntries.find(e => e.entry_date === todayStr);
+  const todayWater = todayHabit ? todayHabit.water_intake_liters : 0;
+  const todaySleep = todayHabit ? todayHabit.sleep_hours : 0;
 
   return (
     <div className="page dashboard-page">
@@ -196,6 +267,38 @@ export default function Dashboard() {
               </div>
             </section>
           )}
+
+          {/* Daily Habits Quick Tracker Section */}
+          <section className="dashboard-section habits-tracker-section">
+            <h2 className="section-title">Today's Daily Habits</h2>
+            <div className="card habits-card" style={{ padding: "1.5rem" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid var(--color-border)", paddingBottom: "1rem" }}>
+                <div>
+                  <span style={{ fontSize: "1.5rem", marginRight: "0.5rem" }}>💧</span>
+                  <strong style={{ fontSize: "1.1rem" }}>Water Intake</strong>
+                  <div className="subtitle" style={{ margin: "0.25rem 0 0 2rem" }}>Target: 2.5 - 3.0 Liters</div>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                  <button className="btn btn-secondary btn-sm" style={{ padding: "0.25rem 0.5rem" }} onClick={() => handleHabitChange("water", -0.25)} disabled={actionLoading}>-250ml</button>
+                  <span style={{ fontWeight: "bold", minWidth: "70px", textAlign: "center" }}>{todayWater.toFixed(2)} L</span>
+                  <button className="btn btn-primary btn-sm" style={{ padding: "0.25rem 0.5rem" }} onClick={() => handleHabitChange("water", 0.25)} disabled={actionLoading}>+250ml</button>
+                </div>
+              </div>
+
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: "1rem" }}>
+                <div>
+                  <span style={{ fontSize: "1.5rem", marginRight: "0.5rem" }}>😴</span>
+                  <strong style={{ fontSize: "1.1rem" }}>Sleep Duration</strong>
+                  <div className="subtitle" style={{ margin: "0.25rem 0 0 2rem" }}>Target: 7.0 - 9.0 Hours</div>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                  <button className="btn btn-secondary btn-sm" style={{ padding: "0.25rem 0.5rem" }} onClick={() => handleHabitChange("sleep", -0.5)} disabled={actionLoading}>-0.5h</button>
+                  <span style={{ fontWeight: "bold", minWidth: "70px", textAlign: "center" }}>{todaySleep.toFixed(1)} h</span>
+                  <button className="btn btn-primary btn-sm" style={{ padding: "0.25rem 0.5rem" }} onClick={() => handleHabitChange("sleep", 0.5)} disabled={actionLoading}>+0.5h</button>
+                </div>
+              </div>
+            </div>
+          </section>
 
           {/* Section 2: Daily Skincare Planner Grid */}
           <section className="dashboard-section planner-section">

@@ -40,3 +40,33 @@ def create_lifestyle_entry(
     db.commit()
     db.refresh(entry)
     return entry
+
+
+@router.put("/{entry_id}", response_model=schemas.LifestyleEntryOut)
+def update_lifestyle_entry(
+    entry_id: str,
+    payload: schemas.LifestyleEntryIn,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    entry = (
+        db.query(models.LifestyleEntry)
+        .filter(
+            models.LifestyleEntry.id == entry_id,
+            models.LifestyleEntry.user_id == current_user.id,
+        )
+        .first()
+    )
+    if not entry:
+        raise HTTPException(status_code=404, detail="Lifestyle entry not found")
+
+    entry.sleep_hours = payload.sleep_hours
+    entry.water_intake_liters = payload.water_intake_liters
+    entry.stress_level = payload.stress_level
+    entry.environmental_exposure = payload.environmental_exposure
+    if hasattr(payload, "exercise_minutes") and payload.exercise_minutes is not None:
+        entry.exercise_minutes = payload.exercise_minutes
+
+    db.commit()
+    db.refresh(entry)
+    return entry
