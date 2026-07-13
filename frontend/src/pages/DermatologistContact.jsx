@@ -76,6 +76,8 @@ export default function DermatologistContact() {
   const [sendingMessage, setSendingMessage] = useState(false);
   const [status, setStatus] = useState(null);
 
+  const recentProgressEntries = useMemo(() => progressEntries.slice(0, 3), [progressEntries]);
+
   const loadData = async () => {
     setLoading(true);
     try {
@@ -187,7 +189,6 @@ export default function DermatologistContact() {
       request.status === "pending" &&
       request.dermatologist_user_id === assigned?.id
   );
-  const recentProgressEntries = useMemo(() => progressEntries.slice(0, 3), [progressEntries]);
 
   return (
     <div className="page">
