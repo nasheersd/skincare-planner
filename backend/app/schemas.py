@@ -226,6 +226,16 @@ class RecommendationsOut(BaseModel):
     recommendations: list[ProductRecommendationOut]
 
 
+class ProductCreateIn(BaseModel):
+    name: str
+    brand: str
+    category: str
+    suitable_skin_types: list[str]
+    key_ingredients: list[str]
+    price_inr: float
+    description: str
+
+
 # ---------- Milestone 2: Assessment & Routine ----------
 class ConcernSeverityIn(BaseModel):
     concern: str

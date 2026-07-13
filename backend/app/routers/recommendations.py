@@ -26,10 +26,28 @@ def get_my_recommendations(
     ingredients = list(mongo.ingredients.find())
 
     if not products:
-        raise HTTPException(
-            status_code=503,
-            detail="Product catalog is empty. Run: python -m seed.seed_db",
-        )
+        import json
+        import os
+        prod_path = os.path.join("seed", "products.json")
+        ing_path = os.path.join("seed", "ingredients.json")
+        if os.path.exists(prod_path) and os.path.exists(ing_path):
+            with open(prod_path, "r", encoding="utf-8") as f:
+                seeded_products = json.load(f)
+            with open(ing_path, "r", encoding="utf-8") as f:
+                seeded_ingredients = json.load(f)
+            
+            if seeded_products:
+                mongo.products.insert_many(seeded_products)
+            if seeded_ingredients:
+                mongo.ingredients.insert_many(seeded_ingredients)
+                
+            products = list(mongo.products.find())
+            ingredients = list(mongo.ingredients.find())
+        else:
+            raise HTTPException(
+                status_code=503,
+                detail="Product catalog is empty and seed files could not be found.",
+            )
 
     skin_type = profile.skin_type.value
     concerns = parse_concerns(profile.skin_concerns)
@@ -46,3 +64,22 @@ def get_my_recommendations(
         skin_concerns=concerns,
         recommendations=recommendations,
     )
+
+
+@router.post("/", status_code=201)
+def create_product(
+    payload: schemas.ProductCreateIn,
+    current_user: models.User = Depends(get_current_user),
+):
+    if current_user.role not in [models.RoleEnum.administrator, models.RoleEnum.skincare_consultant]:
+        raise HTTPException(
+            status_code=403,
+            detail="Only skincare consultants or administrators can add products to the catalog."
+        )
+
+    mongo = get_mongo_db()
+    product_dict = payload.model_dump()
+    result = mongo.products.insert_one(product_dict)
+    product_dict["id"] = str(result.inserted_id)
+    del product_dict["_id"]
+    return product_dict
