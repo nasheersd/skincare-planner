@@ -13,6 +13,8 @@ const USER_LINKS = [
 const CONSULTANT_LINKS = [
   { to: "/consultant/dashboard", label: "Dashboard", icon: "◈" },
   { to: "/consultant/profile", label: "Profile", icon: "◎" },
+  { to: "/consultant/customers", label: "Customers", icon: "◷" },
+  { to: "/consultant/dermatologists", label: "Dermatologists", icon: "✚" },
 ];
 
 const DERMATOLOGIST_LINKS = [
@@ -20,6 +22,7 @@ const DERMATOLOGIST_LINKS = [
   { to: "/dermatologist/profile", label: "Profile", icon: "◎" },
   { to: "/dermatologist/patients", label: "Patients", icon: "◷" },
   { to: "/dermatologist/appointments", label: "Appointments", icon: "✚" },
+  { to: "/dermatologist/consultants", label: "Consultants", icon: "💬" },
 ];
 
 export default function Navbar() {

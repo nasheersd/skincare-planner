@@ -94,6 +94,7 @@ class DermatologistProfile(Base):
     address = Column(String(500), nullable=True)
     website = Column(String(500), nullable=True)
     accepting_new_patients = Column(Boolean, default=True)
+    certificate_url = Column(String(500), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
@@ -242,4 +243,19 @@ class SkincareRoutine(Base):
 
     user = relationship("User", backref="skincare_routines")
     assessment = relationship("SkinAssessment", backref="skincare_routines")
+
+
+class ProfessionalMessage(Base):
+    __tablename__ = "professional_messages"
+
+    id = Column(UUID(as_uuid=False), primary_key=True, default=gen_uuid)
+    consultant_id = Column(UUID(as_uuid=False), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    dermatologist_id = Column(UUID(as_uuid=False), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    sender_user_id = Column(UUID(as_uuid=False), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    body = Column(Text, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+    sender = relationship("User", foreign_keys=[sender_user_id])
+    consultant = relationship("User", foreign_keys=[consultant_id])
+    dermatologist = relationship("User", foreign_keys=[dermatologist_id])
 

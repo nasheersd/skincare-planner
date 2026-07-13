@@ -53,6 +53,7 @@ class DermatologistContactOut(BaseModel):
     address: Optional[str] = None
     website: Optional[str] = None
     accepting_new_patients: bool = True
+    certificate_url: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -70,6 +71,7 @@ class DermatologistProfileIn(BaseModel):
     address: Optional[str] = Field(None, max_length=500)
     website: Optional[str] = Field(None, max_length=500)
     accepting_new_patients: bool = True
+    certificate_url: Optional[str] = Field(None, max_length=500)
 
 
 class DermatologistProfileOut(DermatologistProfileIn):
@@ -275,4 +277,36 @@ class RoutineStepLogIn(BaseModel):
     routine_step_id: str
     completed: bool
     log_date: Optional[str] = None  # YYYY-MM-DD
+
+
+# ---------- Professional Messaging ----------
+class ProfessionalMessageIn(BaseModel):
+    body: str = Field(..., min_length=1, max_length=2000)
+
+
+class ProfessionalMessageOut(BaseModel):
+    id: str
+    consultant_id: str
+    consultant_name: str
+    dermatologist_id: str
+    dermatologist_name: str
+    sender_user_id: str
+    sender_name: str
+    body: str
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class ConsultantPatientOut(BaseModel):
+    id: str
+    full_name: str
+    email: EmailStr
+    skin_profile: Optional[SkinProfileOut] = None
+    assigned_dermatologist: Optional[DermatologistContactOut] = None
+    lifestyle_entries: list[LifestyleEntryOut] = []
+    progress_entries: list[ProgressEntryOut] = []
+    latest_score: Optional[float] = None
+
 

@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException
+import os
+import uuid
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from sqlalchemy.orm import Session, joinedload
 
 from app import models, schemas
@@ -368,3 +370,190 @@ def send_message_to_my_dermatologist(
         .first()
     )
     return _to_message_out(message)
+
+
+@router.post("/upload-certificate")
+def upload_dermatologist_certificate(
+    file: UploadFile = File(...),
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    if current_user.role != RoleEnum.dermatologist:
+        raise HTTPException(status_code=403, detail="Only dermatologists can upload certificates.")
+    
+    ext = os.path.splitext(file.filename)[1]
+    if ext.lower() not in [".pdf", ".jpg", ".jpeg", ".png"]:
+        raise HTTPException(status_code=400, detail="Only PDF or image files (.jpg, .jpeg, .png, .pdf) are allowed.")
+    
+    os.makedirs("static/uploads", exist_ok=True)
+    filename = f"{uuid.uuid4()}{ext}"
+    filepath = os.path.join("static/uploads", filename)
+    
+    with open(filepath, "wb") as buffer:
+        buffer.write(file.file.read())
+        
+    return {"url": f"/static/uploads/{filename}"}
+
+
+@router.get("/consultant/patients", response_model=list[schemas.ConsultantPatientOut], dependencies=[Depends(require_consultant_workspace)])
+def list_patients_for_consultant(
+    db: Session = Depends(get_db)
+):
+    patients = db.query(models.User).options(
+        joinedload(models.User.skin_profile)
+    ).filter(models.User.role == RoleEnum.user).order_by(models.User.full_name).all()
+    
+    from app.routers.dermatologists import _to_contact
+    
+    results = []
+    for p in patients:
+        # Get assigned dermatologist (if any)
+        assigned_derm = None
+        if p.assigned_dermatologist_id:
+            derm = db.query(models.User).options(
+                joinedload(models.User.dermatologist_profile)
+            ).filter(models.User.id == p.assigned_dermatologist_id).first()
+            if derm:
+                assigned_derm = _to_contact(derm)
+                
+        # Get progress entries
+        progress = db.query(models.ProgressEntry).filter(
+            models.ProgressEntry.user_id == p.id
+        ).order_by(models.ProgressEntry.entry_date.desc()).all()
+        
+        # Get lifestyle entries
+        lifestyle = db.query(models.LifestyleEntry).filter(
+            models.LifestyleEntry.user_id == p.id
+        ).order_by(models.LifestyleEntry.entry_date.desc()).all()
+        
+        # Get latest score
+        latest_score = None
+        assessment = db.query(models.SkinAssessment).filter(
+            models.SkinAssessment.user_id == p.id
+        ).order_by(models.SkinAssessment.created_at.desc()).first()
+        if assessment:
+            latest_score = assessment.overall_score
+            
+        results.append(schemas.ConsultantPatientOut(
+            id=p.id,
+            full_name=p.full_name,
+            email=p.email,
+            skin_profile=p.skin_profile,
+            assigned_dermatologist=assigned_derm,
+            lifestyle_entries=lifestyle,
+            progress_entries=progress,
+            latest_score=latest_score
+        ))
+        
+    return results
+
+
+@router.get("/consultant/dermatologists", response_model=list[schemas.DermatologistContactOut], dependencies=[Depends(require_consultant_workspace)])
+def list_dermatologists_for_consultant(
+    db: Session = Depends(get_db)
+):
+    from app.routers.dermatologists import _to_contact
+    derms = db.query(models.User).options(
+        joinedload(models.User.dermatologist_profile)
+    ).filter(models.User.role == RoleEnum.dermatologist, models.User.is_active.is_(True)).order_by(models.User.full_name).all()
+    return [_to_contact(d) for d in derms]
+
+
+@router.get(
+    "/dermatologist/consultants",
+    response_model=list[schemas.ConsultantProfileOut],
+    dependencies=[Depends(require_dermatologist_workspace)],
+)
+def list_consultants_for_dermatologist(
+    db: Session = Depends(get_db)
+):
+    consultants = (
+        db.query(models.User)
+        .options(joinedload(models.User.consultant_profile))
+        .filter(models.User.role == RoleEnum.skincare_consultant, models.User.is_active.is_(True))
+        .order_by(models.User.full_name)
+        .all()
+    )
+    
+    results = []
+    for c in consultants:
+        profile = c.consultant_profile
+        results.append(
+            schemas.ConsultantProfileOut(
+                id=profile.id if profile else "",
+                user_id=c.id,
+                full_name=c.full_name,
+                email=c.email,
+                phone=profile.phone if profile else None,
+                organization_name=profile.organization_name if profile else None,
+                specialization=profile.specialization if profile else None,
+                bio=profile.bio if profile else None,
+                website=profile.website if profile else None,
+            )
+        )
+    return results
+
+
+def _to_professional_message_out(message: models.ProfessionalMessage) -> schemas.ProfessionalMessageOut:
+    return schemas.ProfessionalMessageOut(
+        id=message.id,
+        consultant_id=message.consultant_id,
+        consultant_name=message.consultant.full_name,
+        dermatologist_id=message.dermatologist_id,
+        dermatologist_name=message.dermatologist.full_name,
+        sender_user_id=message.sender_user_id,
+        sender_name=message.sender.full_name,
+        body=message.body,
+        created_at=message.created_at
+    )
+
+
+@router.get("/professional/messages", response_model=list[schemas.ProfessionalMessageOut])
+def get_professional_messages(
+    dermatologist_id: str,
+    consultant_id: str,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    if current_user.role not in [RoleEnum.skincare_consultant, RoleEnum.dermatologist]:
+        raise HTTPException(status_code=403, detail="Access denied.")
+        
+    messages = db.query(models.ProfessionalMessage).options(
+        joinedload(models.ProfessionalMessage.sender),
+        joinedload(models.ProfessionalMessage.consultant),
+        joinedload(models.ProfessionalMessage.dermatologist)
+    ).filter(
+        models.ProfessionalMessage.consultant_id == consultant_id,
+        models.ProfessionalMessage.dermatologist_id == dermatologist_id
+    ).order_by(models.ProfessionalMessage.created_at.asc()).all()
+    
+    return [_to_professional_message_out(m) for m in messages]
+
+
+@router.post("/professional/messages", response_model=schemas.ProfessionalMessageOut)
+def send_professional_message(
+    dermatologist_id: str,
+    consultant_id: str,
+    payload: schemas.ProfessionalMessageIn,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    if current_user.role not in [RoleEnum.skincare_consultant, RoleEnum.dermatologist]:
+        raise HTTPException(status_code=403, detail="Access denied.")
+        
+    message = models.ProfessionalMessage(
+        consultant_id=consultant_id,
+        dermatologist_id=dermatologist_id,
+        sender_user_id=current_user.id,
+        body=payload.body.strip()
+    )
+    db.add(message)
+    db.commit()
+    
+    message = db.query(models.ProfessionalMessage).options(
+        joinedload(models.ProfessionalMessage.sender),
+        joinedload(models.ProfessionalMessage.consultant),
+        joinedload(models.ProfessionalMessage.dermatologist)
+    ).filter(models.ProfessionalMessage.id == message.id).first()
+    
+    return _to_professional_message_out(message)

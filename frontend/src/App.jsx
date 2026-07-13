@@ -19,6 +19,9 @@ import SkinAssessment from "./pages/SkinAssessment";
 import ProductRecommendation from "./pages/ProductRecommendation";
 import ProgressTracking from "./pages/ProgressTracking";
 import DermatologistContact from "./pages/DermatologistContact";
+import DermatologistConsultants from "./pages/DermatologistConsultants";
+import ConsultantCustomers from "./pages/ConsultantCustomers";
+import ConsultantDermatologists from "./pages/ConsultantDermatologists";
 
 function Layout({ children }) {
   const location = useLocation();
@@ -66,6 +69,14 @@ export default function App() {
               element={<ProtectedRoute allowedRoles={["skincare_consultant"]}><ConsultantProfile /></ProtectedRoute>}
             />
             <Route
+              path="/consultant/customers"
+              element={<ProtectedRoute allowedRoles={["skincare_consultant"]}><ConsultantCustomers /></ProtectedRoute>}
+            />
+            <Route
+              path="/consultant/dermatologists"
+              element={<ProtectedRoute allowedRoles={["skincare_consultant"]}><ConsultantDermatologists /></ProtectedRoute>}
+            />
+            <Route
               path="/dermatologist/dashboard"
               element={<ProtectedRoute allowedRoles={["dermatologist"]}><DermatologistDashboard /></ProtectedRoute>}
             />
@@ -80,6 +91,10 @@ export default function App() {
             <Route
               path="/dermatologist/appointments"
               element={<ProtectedRoute allowedRoles={["dermatologist"]}><DermatologistAppointments /></ProtectedRoute>}
+            />
+            <Route
+              path="/dermatologist/consultants"
+              element={<ProtectedRoute allowedRoles={["dermatologist"]}><DermatologistConsultants /></ProtectedRoute>}
             />
             <Route
               path="/skin-profile"
