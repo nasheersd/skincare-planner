@@ -410,22 +410,43 @@ export default function Dashboard() {
             </div>
           </section>
 
-          {/* Quick Actions (Keep intact from original design) */}
+          {/* Quick Actions & Account Info */}
           <section className="dashboard-section actions-section">
-            <h2 className="section-title">Navigation</h2>
-            <div className="dashboard-footer-links">
-              <Link to="/skin-assessment" className="btn btn-secondary">
-                Retake Skin Assessment
-              </Link>
-              <Link to="/skin-profile" className="btn btn-secondary">
-                View Skin Profile
-              </Link>
-              <Link to="/recommendations" className="btn btn-secondary">
-                Product Catalog
-              </Link>
-              <Link to="/progress" className="btn btn-secondary">
-                Skin Logs History
-              </Link>
+            <h2 className="section-title">Navigation & Account Info</h2>
+            <div className="card-grid">
+              <div className="card">
+                <h3 style={{ marginBottom: "1rem" }}>Quick Links</h3>
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                  <Link to="/skin-assessment" className="btn btn-secondary" style={{ textAlign: "center", display: "block" }}>
+                    Retake Skin Assessment
+                  </Link>
+                  <Link to="/skin-profile" className="btn btn-secondary" style={{ textAlign: "center", display: "block" }}>
+                    View Skin Profile
+                  </Link>
+                  <Link to="/recommendations" className="btn btn-secondary" style={{ textAlign: "center", display: "block" }}>
+                    Product Catalog
+                  </Link>
+                  <Link to="/progress" className="btn btn-secondary" style={{ textAlign: "center", display: "block" }}>
+                    Skin Logs History
+                  </Link>
+                </div>
+              </div>
+
+              <div className="card">
+                <h3 style={{ marginBottom: "1rem" }}>Your Account</h3>
+                <div className="account-row" style={{ padding: "0.75rem 0" }}>
+                  <span className="account-label">Name</span>
+                  <span className="account-value">{me?.full_name}</span>
+                </div>
+                <div className="account-row" style={{ padding: "0.75rem 0" }}>
+                  <span className="account-label">Email</span>
+                  <span className="account-value">{me?.email}</span>
+                </div>
+                <div className="account-row" style={{ padding: "0.75rem 0", borderBottom: "none" }}>
+                  <span className="account-label">Role</span>
+                  <span className="eyebrow eyebrow-inline">Patient</span>
+                </div>
+              </div>
             </div>
           </section>
         </div>
