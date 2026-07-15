@@ -29,6 +29,22 @@
   --backdrop-blur: blur(20px);
 }
 
+[data-theme="dark"] {
+  --color-bg: #0C1210;
+  --color-surface: rgba(18, 30, 26, 0.82);
+  --color-surface-sunken: #111D19;
+  --color-ink: #E6ECE9;
+  --color-ink-muted: #A3B5AF;
+  --color-ink-faint: #6A7E78;
+  --color-primary: #528E79;
+  --color-primary-dark: #64A38E;
+  --color-primary-tint: rgba(82, 142, 121, 0.15);
+  --color-border: rgba(42, 69, 61, 0.6);
+  --color-shadow-soft: rgba(0, 0, 0, 0.4);
+  --shadow-soft: 0 12px 32px rgba(0, 0, 0, 0.25);
+  --shadow-lift: 0 20px 48px rgba(0, 0, 0, 0.4);
+}
+
 * { 
   box-sizing: border-box; 
   transition: background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
