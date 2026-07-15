@@ -1570,3 +1570,72 @@ input[type="range"] {
   }
 }
 
+/* ---------- Interactive Skin Scanner Widget ---------- */
+.scanner-container {
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+  text-align: center;
+  background: var(--color-surface-sunken);
+  margin-top: 1rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.scanner-preview-wrapper {
+  position: relative;
+  width: 150px;
+  height: 150px;
+  margin: 0 auto 1rem;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  border: 2px solid var(--color-primary);
+}
+
+.scanner-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.scanning-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: #00ff88;
+  box-shadow: 0 0 8px #00ff88;
+  animation: scanAnim 1.8s infinite linear;
+}
+
+@keyframes scanAnim {
+  0% { top: 0%; }
+  50% { top: 100%; }
+  100% { top: 0%; }
+}
+
+.scan-logs {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--color-ink-muted);
+  text-align: left;
+  max-width: 300px;
+  margin: 1rem auto 0;
+  padding: 0.75rem;
+  background: rgba(0,0,0,0.03);
+  border-radius: var(--radius-sm);
+  min-height: 100px;
+  line-height: 1.4;
+}
+
+.scan-log-item {
+  margin-bottom: 0.25rem;
+  opacity: 0;
+  animation: logFadeIn 0.3s forwards;
+}
+
+@keyframes logFadeIn {
+  to { opacity: 1; }
+}
+
