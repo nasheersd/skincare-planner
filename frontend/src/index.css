@@ -15,6 +15,13 @@
   --color-gold-hover: #C59B27;
   --color-border: rgba(220, 227, 222, 0.8);
   --color-danger: #C5533F;
+  
+  --color-fg-muted: var(--color-ink-muted);
+  --color-bg-card-hover: var(--color-primary-tint);
+
+  --color-bg-grad-start: #F6F8F7;
+  --color-bg-grad-end: #EDF2EF;
+  --color-sidebar-bg: var(--color-surface);
 
   --font-display: 'Fraunces', Georgia, serif;
   --font-body: 'Plus Jakarta Sans', 'Inter', -apple-system, sans-serif;
@@ -29,9 +36,11 @@
   --backdrop-blur: blur(20px);
 }
 
+html[data-theme="dark"],
+body[data-theme="dark"],
 [data-theme="dark"] {
   --color-bg: #0C1210;
-  --color-surface: rgba(18, 30, 26, 0.82);
+  --color-surface: rgba(18, 30, 26, 0.88);
   --color-surface-sunken: #111D19;
   --color-ink: #E6ECE9;
   --color-ink-muted: #A3B5AF;
@@ -40,9 +49,75 @@
   --color-primary-dark: #64A38E;
   --color-primary-tint: rgba(82, 142, 121, 0.15);
   --color-border: rgba(42, 69, 61, 0.6);
+  --color-danger: #C5533F;
   --color-shadow-soft: rgba(0, 0, 0, 0.4);
   --shadow-soft: 0 12px 32px rgba(0, 0, 0, 0.25);
   --shadow-lift: 0 20px 48px rgba(0, 0, 0, 0.4);
+  
+  --color-fg-muted: var(--color-ink-muted);
+  --color-bg-card-hover: var(--color-primary-tint);
+
+  --color-bg-grad-start: #080D0B;
+  --color-bg-grad-end: #030605;
+  --color-sidebar-bg: #070B0A;
+}
+
+/* Explicit Dark Mode Overrides */
+html[data-theme="dark"] body,
+body[data-theme="dark"] body,
+[data-theme="dark"] body,
+body[data-theme="dark"] {
+  background: linear-gradient(135deg, #080D0B 0%, #030605 100%) !important;
+  color: #E6ECE9 !important;
+}
+
+html[data-theme="dark"] .card,
+body[data-theme="dark"] .card,
+[data-theme="dark"] .card {
+  background: rgba(18, 30, 26, 0.88) !important;
+  border-color: rgba(42, 69, 61, 0.6) !important;
+  color: #E6ECE9 !important;
+}
+
+html[data-theme="dark"] input,
+html[data-theme="dark"] select,
+html[data-theme="dark"] textarea,
+body[data-theme="dark"] input,
+body[data-theme="dark"] select,
+body[data-theme="dark"] textarea,
+[data-theme="dark"] input,
+[data-theme="dark"] select,
+[data-theme="dark"] textarea {
+  background: #111D19 !important;
+  color: #E6ECE9 !important;
+  border-color: rgba(42, 69, 61, 0.6) !important;
+}
+
+html[data-theme="dark"] .app-main,
+body[data-theme="dark"] .app-main,
+[data-theme="dark"] .app-main {
+  color: #E6ECE9 !important;
+}
+
+html[data-theme="dark"] h1,
+html[data-theme="dark"] h2,
+html[data-theme="dark"] h3,
+html[data-theme="dark"] h4,
+body[data-theme="dark"] h1,
+body[data-theme="dark"] h2,
+body[data-theme="dark"] h3,
+body[data-theme="dark"] h4,
+[data-theme="dark"] h1,
+[data-theme="dark"] h2,
+[data-theme="dark"] h3,
+[data-theme="dark"] h4 {
+  color: #E6ECE9 !important;
+}
+
+html[data-theme="dark"] p,
+body[data-theme="dark"] p,
+[data-theme="dark"] p {
+  color: #A3B5AF !important;
 }
 
 * { 
@@ -56,7 +131,7 @@ html, body, #root {
 
 body {
   margin: 0;
-  background: linear-gradient(135deg, #F6F8F7 0%, #EDF2EF 100%);
+  background: linear-gradient(135deg, var(--color-bg-grad-start) 0%, var(--color-bg-grad-end) 100%);
   background-attachment: fixed;
   color: var(--color-ink);
   font-family: var(--font-body);
@@ -187,7 +262,7 @@ a:hover {
 .sidebar {
   width: 232px;
   flex-shrink: 0;
-  background: var(--color-surface);
+  background: var(--color-sidebar-bg);
   border-right: 1px solid var(--color-border);
   display: flex;
   flex-direction: column;
@@ -423,6 +498,11 @@ input, select, textarea {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
   background: var(--color-surface);
+  color: var(--color-ink);
+}
+
+select option {
+  background: var(--color-surface-sunken);
   color: var(--color-ink);
 }
 
