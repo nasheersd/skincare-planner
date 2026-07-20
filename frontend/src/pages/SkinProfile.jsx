@@ -72,22 +72,62 @@ export default function SkinProfile() {
           let totalGreen = 0;
           let totalBlue = 0;
           let brightPixels = 0;
+          let redBlemishCount = 0;
+          let brownSpotCount = 0;
+          let edgeVariance = 0;
           
-          for (let i = 0; i < imgData.length; i += 4) {
-            const r = imgData[i];
-            const g = imgData[i+1];
-            const b = imgData[i+2];
-            totalRed += r;
-            totalGreen += g;
-            totalBlue += b;
-            
-            if (r > 200 && g > 200 && b > 200) {
-              brightPixels++;
+          for (let y = 0; y < 100; y++) {
+            for (let x = 0; x < 100; x++) {
+              const idx = (y * 100 + x) * 4;
+              const r = imgData[idx];
+              const g = imgData[idx+1];
+              const b = imgData[idx+2];
+              
+              totalRed += r;
+              totalGreen += g;
+              totalBlue += b;
+              
+              if (r > 200 && g > 200 && b > 200) {
+                brightPixels++;
+              }
+
+              // 1. Red blemishes (Acne / Redness)
+              if (r > 165 && g < 110 && b < 110) {
+                redBlemishCount++;
+              }
+              
+              // 2. Brown spots (Hyperpigmentation / Dark spots)
+              if (r > 90 && r < 160 && g > 65 && g < 115 && b > 40 && b < 95) {
+                brownSpotCount++;
+              }
+              
+              // 3. Edge detection (horizontal differences for wrinkles)
+              if (x < 99) {
+                const nextIdx = idx + 4;
+                const nextR = imgData[nextIdx];
+                const diff = Math.abs(r - nextR);
+                edgeVariance += diff;
+              }
             }
           }
           
           const redRatio = totalRed / (totalGreen + totalBlue + 1);
           const shinyRatio = brightPixels / 2500;
+          const avgEdgeVariance = edgeVariance / 9900;
+          
+          // Determine Concerns
+          let detectedConcerns = [];
+          if (redBlemishCount > 15) {
+            detectedConcerns.push("acne");
+            detectedConcerns.push("redness");
+          }
+          if (brownSpotCount > 25) {
+            detectedConcerns.push("dark spots");
+            detectedConcerns.push("hyperpigmentation");
+          }
+          if (avgEdgeVariance > 18) {
+            detectedConcerns.push("wrinkles");
+          }
           
           let detected = "normal";
           let reason = "Your skin profile appears balanced and healthy.";
@@ -105,8 +145,13 @@ export default function SkinProfile() {
             detected = "normal";
           }
           
-          setForm(prev => ({ ...prev, skin_type: detected }));
-          setScanResult(`Analysis complete! Detected skin type: ${detected.toUpperCase()}. ${reason}`);
+          const concernsString = detectedConcerns.length > 0 ? detectedConcerns.join(", ") : "none";
+          setForm(prev => ({ 
+            ...prev, 
+            skin_type: detected,
+            skin_concerns: concernsString 
+          }));
+          setScanResult(`Analysis complete! Detected skin type: ${detected.toUpperCase()}. Detected concerns: ${concernsString.toUpperCase()}. (${reason})`);
           setScanning(false);
         };
         img.src = event.target.result;
