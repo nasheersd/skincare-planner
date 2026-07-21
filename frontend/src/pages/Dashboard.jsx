@@ -183,9 +183,9 @@ export default function Dashboard() {
   return (
     <div className="page dashboard-page">
       <PageHeader
-        eyebrow="Milestone 2 · Care Planner"
-        title={`Welcome, ${firstName}`}
-        description="Monitor your skin score, lifestyle metrics, daily routine completion, and care progress."
+        eyebrow="SkinGenie · Clinical Skincare Intelligence"
+        title={`Welcome back, ${firstName}`}
+        description="Monitor your skin health score, lifestyle metrics, daily routine completion, and personalized care progress."
       />
 
       {error && <div className="status-msg error">{error}</div>}

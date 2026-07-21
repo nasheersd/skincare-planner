@@ -35,9 +35,9 @@ export default function Login() {
     <div className="auth-shell">
       <RitualRing size={340} progress={0.62} color="var(--color-primary-tint)" trackColor="transparent" />
       <div className="auth-card">
-        <div className="auth-eyebrow">Welcome back</div>
+        <div className="auth-eyebrow">SkinGenie Clinical Portal</div>
         <h1 className="auth-title">Sign in</h1>
-        <p className="auth-subtitle">Continue your skincare routine.</p>
+        <p className="auth-subtitle">Access your personalized skincare routine & analysis.</p>
         <form onSubmit={handleSubmit}>
           <div className="field">
             <label htmlFor="email">Email</label>
