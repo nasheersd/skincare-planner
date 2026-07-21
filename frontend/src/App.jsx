@@ -7,6 +7,7 @@ import LoadingState from "./components/LoadingState";
 
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import Landing from "./pages/Landing";
 import Dashboard from "./pages/Dashboard";
 import ConsultantDashboard from "./pages/ConsultantDashboard";
 import ConsultantProfile from "./pages/ConsultantProfile";
@@ -25,9 +26,9 @@ import ConsultantDermatologists from "./pages/ConsultantDermatologists";
 
 function Layout({ children }) {
   const location = useLocation();
-  const isAuthPage = location.pathname === "/login" || location.pathname === "/register";
+  const isFullWidthPage = location.pathname === "/" || location.pathname === "/login" || location.pathname === "/register";
 
-  if (isAuthPage) return children;
+  if (isFullWidthPage) return children;
 
   return (
     <div className="app-shell">
@@ -41,7 +42,7 @@ function HomeRedirect() {
   const { token, user, authLoading } = useAuth();
 
   if (authLoading) return <LoadingState label="Loading your workspace…" />;
-  if (!token) return <Navigate to="/login" replace />;
+  if (!token) return <Landing />;
   if (user?.role === "dermatologist") return <Navigate to="/dermatologist/dashboard" replace />;
   if (user?.role === "skincare_consultant") return <Navigate to="/consultant/dashboard" replace />;
   return <Navigate to="/dashboard" replace />;
