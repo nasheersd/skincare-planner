@@ -55,8 +55,8 @@ export default function Navbar() {
   return (
     <aside className="sidebar">
       <div className="brand">
-        Skincare Planner
-        <span className="brand-tagline">Personalized care planning</span>
+        SkinGenie
+        <span className="brand-tagline">Clinical Skincare Planner</span>
       </div>
       
       <button 

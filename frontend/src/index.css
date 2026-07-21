@@ -1,39 +1,39 @@
 /* ---------- Design tokens ---------- */
 :root {
-  --color-bg: #F5F7F6;
-  --color-surface: rgba(255, 255, 255, 0.85);
-  --color-surface-sunken: #EBF0ED;
-  --color-ink: #1C2B27;
-  --color-ink-muted: #4E605B;
-  --color-ink-faint: #839790;
-  --color-primary: #3F6F5E;
-  --color-primary-dark: #2A4D41;
-  --color-primary-tint: rgba(63, 111, 94, 0.1);
-  --color-accent: #E8927C;
-  --color-accent-tint: #FBEAE5;
-  --color-gold: #D4AF37;
-  --color-gold-hover: #C59B27;
-  --color-border: rgba(220, 227, 222, 0.8);
+  --color-bg: #F8F6F0;
+  --color-surface: #FFFFFF;
+  --color-surface-sunken: #F2EFE9;
+  --color-ink: #182420;
+  --color-ink-muted: #52665F;
+  --color-ink-faint: #8A9B94;
+  --color-primary: #2B5B4C;
+  --color-primary-dark: #1E4237;
+  --color-primary-tint: rgba(43, 91, 76, 0.08);
+  --color-accent: #D48C7B;
+  --color-accent-tint: #F7EBE8;
+  --color-gold: #C9A465;
+  --color-gold-hover: #B89252;
+  --color-border: #E2DDD4;
   --color-danger: #C5533F;
   
   --color-fg-muted: var(--color-ink-muted);
   --color-bg-card-hover: var(--color-primary-tint);
 
-  --color-bg-grad-start: #F6F8F7;
-  --color-bg-grad-end: #EDF2EF;
-  --color-sidebar-bg: var(--color-surface);
+  --color-bg-grad-start: #F8F6F0;
+  --color-bg-grad-end: #F0EDE5;
+  --color-sidebar-bg: #FFFFFF;
 
   --font-display: 'Fraunces', Georgia, serif;
   --font-body: 'Plus Jakarta Sans', 'Inter', -apple-system, sans-serif;
   --font-mono: 'Space Mono', monospace;
 
-  --radius-sm: 10px;
-  --radius-md: 16px;
-  --radius-lg: 28px;
-  --shadow-soft: 0 12px 32px rgba(63, 111, 94, 0.05);
-  --shadow-lift: 0 20px 48px rgba(63, 111, 94, 0.1);
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --shadow-soft: 0 8px 24px rgba(24, 36, 32, 0.04);
+  --shadow-lift: 0 16px 40px rgba(24, 36, 32, 0.08);
   
-  --backdrop-blur: blur(20px);
+  --backdrop-blur: blur(16px);
 }
 
 html[data-theme="dark"],
