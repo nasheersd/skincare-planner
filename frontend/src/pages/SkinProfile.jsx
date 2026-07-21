@@ -3,7 +3,72 @@ import api from "../api/axios";
 import PageHeader from "../components/PageHeader";
 import LoadingState from "../components/LoadingState";
 
-const SKIN_TYPES = ["oily", "dry", "combination", "normal", "sensitive"];
+const ALL_SKIN_TYPES = [
+  {
+    value: "oily",
+    label: "Oily Skin",
+    icon: "💧",
+    badge: "Excess Sebum",
+    desc: "Visible shine, enlarged pores, prone to blackheads and oil buildup throughout the day.",
+    bgGrad: "linear-gradient(135deg, rgba(43, 91, 76, 0.12) 0%, rgba(43, 91, 76, 0.04) 100%)"
+  },
+  {
+    value: "dry",
+    label: "Dry Skin",
+    icon: "🌵",
+    badge: "Lacks Lipids",
+    desc: "Tight feeling, flaking, rough skin texture, requires deep lipid nourishment.",
+    bgGrad: "linear-gradient(135deg, rgba(212, 140, 123, 0.12) 0%, rgba(212, 140, 123, 0.04) 100%)"
+  },
+  {
+    value: "sensitive",
+    label: "Sensitive Skin",
+    icon: "🌸",
+    badge: "Reactive Barrier",
+    desc: "Easily flushes red, experiences stinging or burning with harsh active ingredients.",
+    bgGrad: "linear-gradient(135deg, rgba(232, 146, 124, 0.12) 0%, rgba(232, 146, 124, 0.04) 100%)"
+  },
+  {
+    value: "combination",
+    label: "Combination Skin",
+    icon: "⚖️",
+    badge: "Dual Balance",
+    desc: "Oily T-zone (forehead, nose, chin) with normal or dry cheeks.",
+    bgGrad: "linear-gradient(135deg, rgba(201, 164, 101, 0.12) 0%, rgba(201, 164, 101, 0.04) 100%)"
+  },
+  {
+    value: "normal",
+    label: "Normal Skin",
+    icon: "🌿",
+    badge: "Balanced Hydration",
+    desc: "Balanced moisture levels, smooth texture, minimal breakouts or reactivity.",
+    bgGrad: "linear-gradient(135deg, rgba(43, 91, 76, 0.12) 0%, rgba(43, 91, 76, 0.04) 100%)"
+  },
+  {
+    value: "acne_prone",
+    label: "Acne-Prone Skin",
+    icon: "🌋",
+    badge: "Active Comedones",
+    desc: "Frequent papules, clogged pores, inflammatory breakouts needing targeted treatment.",
+    bgGrad: "linear-gradient(135deg, rgba(197, 83, 63, 0.12) 0%, rgba(197, 83, 63, 0.04) 100%)"
+  },
+  {
+    value: "dehydrated",
+    label: "Dehydrated Skin",
+    icon: "🌊",
+    badge: "Lacks Moisture",
+    desc: "Lacks water moisture (can be oily yet dry underneath), dull appearance and surface lines.",
+    bgGrad: "linear-gradient(135deg, rgba(63, 161, 181, 0.12) 0%, rgba(63, 161, 181, 0.04) 100%)"
+  },
+  {
+    value: "aging",
+    label: "Aging / Mature Skin",
+    icon: "⌛",
+    badge: "Loss of Firmness",
+    desc: "Reduced elasticity, fine lines, age spots, requires collagen support & antioxidants.",
+    bgGrad: "linear-gradient(135deg, rgba(142, 100, 175, 0.12) 0%, rgba(142, 100, 175, 0.04) 100%)"
+  }
+];
 
 export default function SkinProfile() {
   const [form, setForm] = useState({
@@ -208,12 +273,63 @@ export default function SkinProfile() {
         <div className="form-section">
           <h3 className="form-section-title">Skin details</h3>
           <div className="field">
-            <label htmlFor="skin_type">Skin type</label>
-            <select id="skin_type" name="skin_type" value={form.skin_type || "normal"} onChange={handleChange}>
-              {SKIN_TYPES.map((t) => (
-                <option key={t} value={t}>{t.charAt(0).toUpperCase() + t.slice(1)}</option>
-              ))}
-            </select>
+            <label style={{ fontSize: "1.05rem", fontWeight: "700", marginBottom: "0.85rem", display: "block" }}>
+              Skin Type Classification (Select your baseline profile)
+            </label>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: "1rem" }}>
+              {ALL_SKIN_TYPES.map((st) => {
+                const isSelected = (form.skin_type || "normal").toLowerCase() === st.value;
+                return (
+                  <div
+                    key={st.value}
+                    onClick={() => setForm(f => ({ ...f, skin_type: st.value }))}
+                    style={{
+                      padding: "1.2rem",
+                      borderRadius: "var(--radius-md)",
+                      border: isSelected ? "2px solid var(--color-primary)" : "1px solid var(--color-border)",
+                      background: isSelected ? st.bgGrad : "var(--color-surface)",
+                      cursor: "pointer",
+                      transition: "all 0.2s ease",
+                      position: "relative",
+                      boxShadow: isSelected ? "var(--shadow-lift)" : "none"
+                    }}
+                  >
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.5rem" }}>
+                      <span style={{ fontSize: "1.8rem" }}>{st.icon}</span>
+                      <span style={{
+                        fontSize: "0.7rem",
+                        padding: "0.2rem 0.55rem",
+                        borderRadius: "10px",
+                        background: isSelected ? "var(--color-primary)" : "var(--color-surface-sunken)",
+                        color: isSelected ? "#fff" : "var(--color-ink-muted)",
+                        fontWeight: "700"
+                      }}>
+                        {st.badge}
+                      </span>
+                    </div>
+                    <div style={{ fontWeight: "700", fontSize: "1.05rem", color: "var(--color-ink)", marginBottom: "0.25rem" }}>
+                      {st.label}
+                    </div>
+                    <div style={{ fontSize: "0.82rem", color: "var(--color-ink-muted)", lineHeight: 1.4 }}>
+                      {st.desc}
+                    </div>
+                    {isSelected && (
+                      <div style={{
+                        marginTop: "0.75rem",
+                        fontSize: "0.75rem",
+                        fontWeight: "700",
+                        color: "var(--color-primary)",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "0.3rem"
+                      }}>
+                        ✓ SELECTED PROFILE
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           </div>
 
           {/* Skin Image Scanner Feature */}

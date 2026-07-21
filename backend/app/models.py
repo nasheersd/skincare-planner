@@ -35,6 +35,9 @@ class SkinTypeEnum(str, enum.Enum):
     combination = "combination"
     normal = "normal"
     sensitive = "sensitive"
+    acne_prone = "acne_prone"
+    dehydrated = "dehydrated"
+    aging = "aging"
 
 
 class User(Base):

@@ -71,6 +71,21 @@ def generate_default_routine(user_id: str, skin_type: str, primary_concern: str,
             "AM": ["Cleansing", "Moisturizing", "Sun Protection"],
             "PM": ["Cleansing", "Moisturizing"],
             "Weekly": ["Gentle Exfoliation"]
+        },
+        "acne_prone": {
+            "AM": ["Cleansing", "Treatment", "Sun Protection"],
+            "PM": ["Cleansing", "Treatment", "Night Care"],
+            "Weekly": ["Salicylic Mask"]
+        },
+        "dehydrated": {
+            "AM": ["Cleansing", "Hydrating Serum", "Sun Protection"],
+            "PM": ["Cleansing", "Hydrating Serum", "Moisturizing"],
+            "Weekly": ["Hydrating Sheet Mask"]
+        },
+        "aging": {
+            "AM": ["Cleansing", "Antioxidant Serum", "Sun Protection"],
+            "PM": ["Cleansing", "Retinoid Treatment", "Nourishing Cream"],
+            "Weekly": ["Firming Mask"]
         }
     }
     
