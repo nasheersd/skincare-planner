@@ -25,7 +25,17 @@ export default function Login() {
         navigate("/dashboard");
       }
     } catch (err) {
-      setError(err.response?.data?.detail || "We couldn't sign you in. Check your details and try again.");
+      if (err.response?.data?.detail) {
+        if (typeof err.response.data.detail === "string") {
+          setError(err.response.data.detail);
+        } else if (Array.isArray(err.response.data.detail)) {
+          setError(err.response.data.detail.map(d => d.msg).join(", "));
+        } else {
+          setError(JSON.stringify(err.response.data.detail));
+        }
+      } else {
+        setError(err.message || "We couldn't sign you in. Check your network or details and try again.");
+      }
     } finally {
       setLoading(false);
     }
