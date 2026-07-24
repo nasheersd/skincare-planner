@@ -52,10 +52,13 @@ export function AuthProvider({ children }) {
     const res = await api.post("/auth/login", form, {
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
     });
-    localStorage.setItem("access_token", res.data.access_token);
-    setToken(res.data.access_token);
+    const accessToken = res.data.access_token;
+    localStorage.setItem("access_token", accessToken);
+    setToken(accessToken);
 
-    const me = await api.get("/users/me");
+    const me = await api.get("/users/me", {
+      headers: { Authorization: `Bearer ${accessToken}` }
+    });
     setUser(me.data);
     return me.data;
   };

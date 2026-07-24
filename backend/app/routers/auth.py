@@ -9,15 +9,18 @@ from app.auth import hash_password, verify_password, create_access_token
 router = APIRouter(prefix="/api/auth", tags=["Authentication"])
 
 
+from sqlalchemy import func
+
 @router.post("/register", response_model=schemas.UserOut, status_code=status.HTTP_201_CREATED)
 def register(payload: schemas.UserRegister, db: Session = Depends(get_db)):
-    existing = db.query(models.User).filter(models.User.email == payload.email).first()
+    clean_email = payload.email.lower().strip()
+    existing = db.query(models.User).filter(func.lower(models.User.email) == clean_email).first()
     if existing:
         raise HTTPException(status_code=400, detail="Email already registered")
 
     user = models.User(
         full_name=payload.full_name,
-        email=payload.email,
+        email=clean_email,
         hashed_password=hash_password(payload.password),
         role=payload.role,
     )
@@ -30,7 +33,8 @@ def register(payload: schemas.UserRegister, db: Session = Depends(get_db)):
 @router.post("/login", response_model=schemas.Token)
 def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     # form_data.username carries the email
-    user = db.query(models.User).filter(models.User.email == form_data.username).first()
+    clean_username = form_data.username.lower().strip()
+    user = db.query(models.User).filter(func.lower(models.User.email) == clean_username).first()
     if not user or not verify_password(form_data.password, user.hashed_password):
         raise HTTPException(status_code=401, detail="Incorrect email or password")
 
