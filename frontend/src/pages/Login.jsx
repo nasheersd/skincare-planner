@@ -57,6 +57,11 @@ export default function Login() {
             <label htmlFor="password">Password</label>
             <input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
           </div>
+          <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "1.25rem", marginTop: "-0.5rem" }}>
+            <Link to="/forgot-password" style={{ fontSize: "0.82rem", color: "var(--color-primary)", textDecoration: "none", fontWeight: "600" }}>
+              Forgot password?
+            </Link>
+          </div>
           <button type="submit" className="btn btn-primary btn-block" disabled={loading}>
             {loading ? "Signing in…" : "Sign in"}
           </button>

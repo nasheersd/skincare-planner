@@ -7,6 +7,7 @@ import LoadingState from "./components/LoadingState";
 
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import ForgotPassword from "./pages/ForgotPassword";
 import Landing from "./pages/Landing";
 import Dashboard from "./pages/Dashboard";
 import ConsultantDashboard from "./pages/ConsultantDashboard";
@@ -26,7 +27,7 @@ import ConsultantDermatologists from "./pages/ConsultantDermatologists";
 
 function Layout({ children }) {
   const location = useLocation();
-  const isFullWidthPage = location.pathname === "/" || location.pathname === "/login" || location.pathname === "/register";
+  const isFullWidthPage = location.pathname === "/" || location.pathname === "/login" || location.pathname === "/register" || location.pathname === "/forgot-password";
 
   if (isFullWidthPage) return children;
 
@@ -57,6 +58,7 @@ export default function App() {
             <Route path="/" element={<HomeRedirect />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route
               path="/dashboard"
               element={<ProtectedRoute allowedRoles={["user", "administrator"]}><Dashboard /></ProtectedRoute>}

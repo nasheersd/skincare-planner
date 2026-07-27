@@ -40,3 +40,30 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
 
     token = create_access_token(data={"sub": user.id, "role": user.role.value})
     return {"access_token": token, "token_type": "bearer"}
+
+
+import secrets
+import string
+from app.mail import send_reset_password_email
+
+@router.post("/forgot-password")
+def forgot_password(payload: schemas.ForgotPasswordRequest, db: Session = Depends(get_db)):
+    clean_email = payload.email.lower().strip()
+    user = db.query(models.User).filter(func.lower(models.User.email) == clean_email).first()
+    
+    # Avoid exposing email existence for security, but return a success message
+    if not user:
+        return {"message": "If the email exists in our system, a temporary password has been sent."}
+
+    # Generate a random 10-character temporary password
+    alphabet = string.ascii_letters + string.digits
+    temp_password = "".join(secrets.choice(alphabet) for i in range(10))
+
+    # Update database
+    user.hashed_password = hash_password(temp_password)
+    db.commit()
+
+    # Send email
+    send_reset_password_email(user.email, temp_password)
+
+    return {"message": "If the email exists in our system, a temporary password has been sent."}
