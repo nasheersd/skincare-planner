@@ -72,6 +72,7 @@ export default function ForgotPassword() {
                 required
                 autoFocus
                 placeholder="name@example.com"
+                autoComplete="email"
                 style={{ width: "100%", padding: "0.65rem 0.75rem", borderRadius: "var(--radius-sm)", border: "1px solid var(--color-border)", outline: "none", background: "var(--color-surface)" }}
               />
             </div>

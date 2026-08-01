@@ -51,11 +51,11 @@ export default function Login() {
         <form onSubmit={handleSubmit}>
           <div className="field">
             <label htmlFor="email">Email</label>
-            <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoFocus />
+            <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoFocus autoComplete="email" />
           </div>
           <div className="field">
             <label htmlFor="password">Password</label>
-            <input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+            <input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required autoComplete="current-password" />
           </div>
           <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "1.25rem", marginTop: "-0.5rem" }}>
             <Link to="/forgot-password" style={{ fontSize: "0.82rem", color: "var(--color-primary)", textDecoration: "none", fontWeight: "600" }}>

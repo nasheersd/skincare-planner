@@ -118,15 +118,15 @@ export default function Register() {
         <form onSubmit={handleSubmit}>
           <div className="field">
             <label htmlFor="fullName">Full name</label>
-            <input id="fullName" value={fullName} onChange={(e) => setFullName(e.target.value)} required />
+            <input id="fullName" value={fullName} onChange={(e) => setFullName(e.target.value)} required autoComplete="name" />
           </div>
           <div className="field">
             <label htmlFor="email">Email</label>
-            <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+            <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" />
           </div>
           <div className="field">
             <label htmlFor="password">Password <span className="hint">min 6 characters</span></label>
-            <input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} maxLength={72} />
+            <input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} maxLength={72} autoComplete="new-password" />
           </div>
           <div className="field">
             <label htmlFor="role">I am a</label>
