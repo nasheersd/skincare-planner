@@ -324,3 +324,66 @@ class ConsultantPatientOut(BaseModel):
     latest_score: Optional[float] = None
 
 
+# ---------- Admin Dashboard Schemas ----------
+class AdminUserOut(BaseModel):
+    id: str
+    full_name: str
+    email: EmailStr
+    role: RoleEnum
+    is_active: bool
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class AdminUserListOut(BaseModel):
+    users: list[AdminUserOut]
+    total_count: int
+    page: int
+    pages: int
+
+
+class UpdateUserRoleIn(BaseModel):
+    role: RoleEnum
+
+
+class UpdateUserStatusIn(BaseModel):
+    is_active: bool
+
+
+class AdminDermatologistOut(BaseModel):
+    id: str
+    user_id: str
+    full_name: str
+    email: EmailStr
+    phone: Optional[str] = None
+    clinic_name: Optional[str] = None
+    specialty: Optional[str] = None
+    bio: Optional[str] = None
+    address: Optional[str] = None
+    website: Optional[str] = None
+    accepting_new_patients: bool = True
+    certificate_url: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+
+
+class UpdateDermatologistIn(BaseModel):
+    phone: Optional[str] = None
+    clinic_name: Optional[str] = None
+    specialty: Optional[str] = None
+    bio: Optional[str] = None
+    address: Optional[str] = None
+    website: Optional[str] = None
+    accepting_new_patients: Optional[bool] = None
+
+
+class AdminStatsOut(BaseModel):
+    total_users_by_role: dict[str, int]
+    total_dermatologists: int
+    total_products: int
+
+
+

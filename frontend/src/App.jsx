@@ -24,6 +24,7 @@ import DermatologistContact from "./pages/DermatologistContact";
 import DermatologistConsultants from "./pages/DermatologistConsultants";
 import ConsultantCustomers from "./pages/ConsultantCustomers";
 import ConsultantDermatologists from "./pages/ConsultantDermatologists";
+import AdminDashboard from "./pages/AdminDashboard";
 
 function Layout({ children }) {
   const location = useLocation();
@@ -118,6 +119,10 @@ export default function App() {
             <Route
               path="/progress"
               element={<ProtectedRoute allowedRoles={["user", "administrator"]}><ProgressTracking /></ProtectedRoute>}
+            />
+            <Route
+              path="/admin"
+              element={<ProtectedRoute allowedRoles={["administrator"]}><AdminDashboard /></ProtectedRoute>}
             />
           </Routes>
         </Layout>

@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from app.database import Base, engine
-from app.routers import auth, users, skin_profile, lifestyle, dermatologists, recommendations, appointments, progress, workspace, assessment, routine
+from app.routers import auth, users, skin_profile, lifestyle, dermatologists, recommendations, appointments, progress, workspace, assessment, routine, admin
 
 # Creates tables if they don't exist. In production, use Alembic migrations instead.
 Base.metadata.create_all(bind=engine)
@@ -49,6 +49,7 @@ app.include_router(skin_profile.router)
 app.include_router(lifestyle.router)
 app.include_router(assessment.router)
 app.include_router(routine.router)
+app.include_router(admin.router)
 
 
 

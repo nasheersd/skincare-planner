@@ -26,6 +26,16 @@ const DERMATOLOGIST_LINKS = [
   { to: "/dermatologist/consultants", label: "Consultants", icon: "💬" },
 ];
 
+const ADMIN_LINKS = [
+  { to: "/admin", label: "Admin Panel", icon: "🛠️" },
+  { to: "/dashboard", label: "Dashboard", icon: "✨" },
+  { to: "/skin-profile", label: "Skin Profile", icon: "🧴" },
+  { to: "/skin-assessment", label: "Assessment", icon: "📝" },
+  { to: "/dermatologist", label: "Dermatologist", icon: "🩺" },
+  { to: "/recommendations", label: "Recommendations", icon: "🛍️" },
+  { to: "/progress", label: "Progress Logs", icon: "📈" },
+];
+
 export default function Navbar() {
   const { token, user, logout } = useAuth();
   const navigate = useNavigate();
@@ -41,11 +51,13 @@ export default function Navbar() {
     setTheme(prev => prev === "light" ? "dark" : "light");
   };
 
-  const links = user?.role === "dermatologist"
-    ? DERMATOLOGIST_LINKS
-    : user?.role === "skincare_consultant"
-      ? CONSULTANT_LINKS
-      : USER_LINKS;
+  const links = user?.role === "administrator"
+    ? ADMIN_LINKS
+    : user?.role === "dermatologist"
+      ? DERMATOLOGIST_LINKS
+      : user?.role === "skincare_consultant"
+        ? CONSULTANT_LINKS
+        : USER_LINKS;
 
   const handleLogout = () => {
     logout();
