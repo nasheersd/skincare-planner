@@ -35,7 +35,7 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
     # form_data.username carries the email
     clean_username = form_data.username.lower().strip()
     user = db.query(models.User).filter(func.lower(models.User.email) == clean_username).first()
-    if not user or not verify_password(form_data.password, user.hashed_password):
+    if not user or not verify_password(form_data.password.strip(), user.hashed_password):
         raise HTTPException(status_code=401, detail="Incorrect email or password")
 
     token = create_access_token(data={"sub": user.id, "role": user.role.value})
