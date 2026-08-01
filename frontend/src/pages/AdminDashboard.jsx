@@ -3,8 +3,25 @@ import api from "../api/axios";
 import LoadingState from "../components/LoadingState";
 import PageHeader from "../components/PageHeader";
 
+function AdminStat({ label, value, note }) {
+  return (
+    <div className="card summary-card" style={{ flex: 1 }}>
+      <div className="summary-label" style={{ fontSize: "0.85rem", textTransform: "uppercase", tracking: "0.05em", color: "var(--color-gold)", fontWeight: "bold" }}>
+        {label}
+      </div>
+      <div className="summary-value" style={{ fontSize: "2.2rem", fontWeight: "800", margin: "0.5rem 0", color: "var(--color-ink)" }}>
+        {value}
+      </div>
+      <p className="summary-note" style={{ fontSize: "0.78rem", color: "var(--color-ink-muted)", margin: 0 }}>
+        {note}
+      </p>
+    </div>
+  );
+}
+
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("overview");
+  const [me, setMe] = useState(null);
   const [stats, setStats] = useState(null);
   const [usersData, setUsersData] = useState({ users: [], total_count: 0, page: 1, pages: 1 });
   const [dermatologists, setDermatologists] = useState([]);
@@ -27,6 +44,19 @@ export default function AdminDashboard() {
     website: "",
     accepting_new_patients: true
   });
+
+  // Add Product Form State (matching Consultant Dashboard styling)
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [newProd, setNewProd] = useState({
+    name: "",
+    brand: "",
+    category: "Moisturizer",
+    price: 25.0,
+    suitable_skin_types: "oily, dry, combination, sensitive, normal",
+    key_active_ingredients: "Hyaluronic Acid, Niacinamide",
+    description: "Clinical grade daily moisturizer."
+  });
+  const [adding, setAdding] = useState(false);
 
   const loadStats = async () => {
     try {
@@ -56,11 +86,20 @@ export default function AdminDashboard() {
     }
   };
 
+  const loadMe = async () => {
+    try {
+      const res = await api.get("/users/me");
+      setMe(res.data);
+    } catch (err) {
+      console.error("Failed to load current user.", err);
+    }
+  };
+
   // Load everything initially
   useEffect(() => {
     const init = async () => {
       setLoading(true);
-      await Promise.all([loadStats(), loadUsers(), loadDermatologists()]);
+      await Promise.all([loadMe(), loadStats(), loadUsers(), loadDermatologists()]);
       setLoading(false);
     };
     init();
@@ -112,14 +151,52 @@ export default function AdminDashboard() {
     }
   };
 
-  if (loading) return <LoadingState label="Loading Administration Console..." />;
+  const handleAddProduct = async (e) => {
+    e.preventDefault();
+    setAdding(true);
+    setStatusMsg(null);
+    try {
+      const payload = {
+        name: newProd.name,
+        brand: newProd.brand,
+        category: newProd.category,
+        price: Number(newProd.price),
+        suitable_skin_types: newProd.suitable_skin_types.split(",").map(s => s.trim().toLowerCase()),
+        key_active_ingredients: newProd.key_active_ingredients.split(",").map(s => s.trim()),
+        description: newProd.description,
+        safety_warnings: ["Patch test before initial application"],
+        usage_instructions: "Apply evenly twice daily after cleansing."
+      };
+      await api.post("/recommendations/", payload);
+      setStatusMsg({ type: "ok", text: "Product added to clinical catalog successfully!" });
+      setNewProd({
+        name: "",
+        brand: "",
+        category: "Moisturizer",
+        price: 25.0,
+        suitable_skin_types: "oily, dry, combination, sensitive, normal",
+        key_active_ingredients: "Hyaluronic Acid, Niacinamide",
+        description: "Clinical grade daily moisturizer."
+      });
+      setShowAddForm(false);
+      loadStats();
+    } catch (err) {
+      setStatusMsg({ type: "error", text: err.response?.data?.detail || "Failed to add product. Ensure all fields are filled." });
+    } finally {
+      setAdding(false);
+    }
+  };
+
+  if (loading) return <LoadingState label="Loading administration workspace…" />;
+
+  const firstName = me?.full_name?.split(" ")[0] || "Administrator";
 
   return (
     <div className="page">
       <PageHeader
         eyebrow="Admin workspace"
-        title="Admin Control Center"
-        description="Monitor system metrics, update user roles/permissions, manage clinic properties, and audit dermatologist accounts."
+        title={`Welcome, ${firstName}`}
+        description="Monitor system metrics, manage database profiles, and catalog clinical skincare products."
       />
 
       {statusMsg && (
@@ -154,42 +231,145 @@ export default function AdminDashboard() {
       {/* OVERVIEW TAB */}
       {activeTab === "overview" && stats && (
         <div style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
-          <div className="card-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "1.5rem" }}>
-            <div className="card" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <div>
-                <span className="eyebrow">Dermatologists</span>
-                <h2 style={{ fontSize: "2rem", margin: "0.25rem 0" }}>{stats.total_dermatologists}</h2>
-                <p className="stat-note">Active clinics</p>
-              </div>
-              <div style={{ fontSize: "2.5rem" }}>🩺</div>
+          
+          {/* Workspace summary (exactly like Consultant dashboard summary cards) */}
+          <section className="section" style={{ margin: 0 }}>
+            <h2 className="section-title" style={{ fontSize: "1.1rem" }}>Workspace summary</h2>
+            <div className="card-grid" style={{ display: "flex", flexWrap: "wrap", gap: "1.5rem" }}>
+              <AdminStat
+                label="Workspace access"
+                value="Private"
+                note="Admin panel routes are protected and gated."
+              />
+              <AdminStat
+                label="Total Users"
+                value={usersData.total_count}
+                note="Registered user accounts in Postgres database."
+              />
+              <AdminStat
+                label="Dermatologists"
+                value={stats.total_dermatologists}
+                note="Active clinical profiles."
+              />
+              <AdminStat
+                label="Catalog Products"
+                value={stats.total_products}
+                note="Skincare products in Mongo catalog."
+              />
             </div>
-            <div className="card" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <div>
-                <span className="eyebrow">MongoDB Catalog</span>
-                <h2 style={{ fontSize: "2rem", margin: "0.25rem 0" }}>{stats.total_products}</h2>
-                <p className="stat-note">Catalog products</p>
-              </div>
-              <div style={{ fontSize: "2.5rem" }}>🧴</div>
-            </div>
-            <div className="card" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <div>
-                <span className="eyebrow">Skincare Patients</span>
-                <h2 style={{ fontSize: "2rem", margin: "0.25rem 0" }}>{stats.total_users_by_role.user || 0}</h2>
-                <p className="stat-note">Registered profiles</p>
-              </div>
-              <div style={{ fontSize: "2.5rem" }}>👥</div>
-            </div>
-            <div className="card" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <div>
-                <span className="eyebrow">Consultants</span>
-                <h2 style={{ fontSize: "2rem", margin: "0.25rem 0" }}>{stats.total_users_by_role.skincare_consultant || 0}</h2>
-                <p className="stat-note">Active agents</p>
-              </div>
-              <div style={{ fontSize: "2.5rem" }}>🌿</div>
-            </div>
-          </div>
+          </section>
 
-          <div className="card" style={{ borderLeft: "4px solid var(--color-primary)" }}>
+          {/* Add Product Catalog Management (Matches Consultant style) */}
+          <section className="section" style={{ margin: 0 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+              <div>
+                <h2 className="section-title" style={{ margin: 0 }}>Clinical Products & Recommendation Catalog</h2>
+                <p style={{ margin: "0.2rem 0 0", color: "var(--color-ink-muted)", fontSize: "0.88rem" }}>
+                  Add and manage recommended products tailored for patient routines.
+                </p>
+              </div>
+              <button
+                onClick={() => setShowAddForm(!showAddForm)}
+                className="btn btn-primary"
+                style={{ borderRadius: "var(--radius-sm)" }}
+              >
+                {showAddForm ? "Cancel" : "➕ Add Product"}
+              </button>
+            </div>
+
+            {showAddForm && (
+              <div className="card" style={{ marginBottom: "1.5rem", background: "var(--color-primary-tint)", border: "1px solid var(--color-primary)" }}>
+                <h3 style={{ marginTop: 0 }}>Add New Skincare Product</h3>
+                <form onSubmit={handleAddProduct} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+                    <div className="field">
+                      <label>Product Name</label>
+                      <input
+                        type="text"
+                        className="input"
+                        value={newProd.name}
+                        onChange={(e) => setNewProd({ ...newProd, name: e.target.value })}
+                        required
+                      />
+                    </div>
+                    <div className="field">
+                      <label>Brand</label>
+                      <input
+                        type="text"
+                        className="input"
+                        value={newProd.brand}
+                        onChange={(e) => setNewProd({ ...newProd, brand: e.target.value })}
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "1rem" }}>
+                    <div className="field">
+                      <label>Category</label>
+                      <select
+                        className="input"
+                        value={newProd.category}
+                        onChange={(e) => setNewProd({ ...newProd, category: e.target.value })}
+                      >
+                        <option value="Cleanser">Cleanser</option>
+                        <option value="Moisturizer">Moisturizer</option>
+                        <option value="Serum">Serum</option>
+                        <option value="Sunscreen">Sunscreen</option>
+                        <option value="Treatment">Treatment</option>
+                        <option value="Toner">Toner</option>
+                      </select>
+                    </div>
+                    <div className="field">
+                      <label>Price ($)</label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        className="input"
+                        value={newProd.price}
+                        onChange={(e) => setNewProd({ ...newProd, price: e.target.value })}
+                        required
+                      />
+                    </div>
+                    <div className="field">
+                      <label>Suitable Skin Types (comma separated)</label>
+                      <input
+                        type="text"
+                        className="input"
+                        value={newProd.suitable_skin_types}
+                        onChange={(e) => setNewProd({ ...newProd, suitable_skin_types: e.target.value })}
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div className="field">
+                    <label>Key Active Ingredients (comma separated)</label>
+                    <input
+                      type="text"
+                      className="input"
+                      value={newProd.key_active_ingredients}
+                      onChange={(e) => setNewProd({ ...newProd, key_active_ingredients: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div className="field">
+                    <label>Description</label>
+                    <textarea
+                      rows="3"
+                      className="input"
+                      value={newProd.description}
+                      onChange={(e) => setNewProd({ ...newProd, description: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <button type="submit" className="btn btn-primary" disabled={adding} style={{ width: "max-content" }}>
+                    {adding ? "Adding..." : "Add Product to Catalog"}
+                  </button>
+                </form>
+              </div>
+            )}
+          </section>
+
+          <div className="card" style={{ borderLeft: "4px solid var(--color-primary)", margin: 0 }}>
             <h3>System Status & Infrastructure</h3>
             <p style={{ margin: "0.5rem 0 1rem 0", color: "var(--color-fg-muted)", fontSize: "0.9rem" }}>
               PostgreSQL and MongoDB databases are fully connected and operational.
@@ -220,7 +400,7 @@ export default function AdminDashboard() {
 
       {/* USERS MANAGEMENT TAB */}
       {activeTab === "users" && (
-        <div className="card" style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+        <div className="card" style={{ display: "flex", flexDirection: "column", gap: "1.5rem", margin: 0 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem" }}>
             <h3>All Registered Accounts ({usersData.total_count})</h3>
             
@@ -325,7 +505,7 @@ export default function AdminDashboard() {
             {dermatologists.map((derma) => {
               const isEditing = editingDermaId === derma.id;
               return (
-                <div key={derma.id} className="card" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+                <div key={derma.id} className="card" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", margin: 0 }}>
                   <div>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "0.75rem" }}>
                       <div>
