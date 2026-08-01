@@ -56,3 +56,29 @@ app.include_router(admin.router)
 @app.get("/api/health", tags=["Health"])
 def health_check():
     return {"status": "ok", "milestone": "1 - Foundation"}
+
+
+from app.database import SessionLocal
+from app.models import User, RoleEnum
+from app.auth import hash_password
+
+@app.on_event("startup")
+def seed_admin_user():
+    db = SessionLocal()
+    try:
+        admin_exists = db.query(User).filter(User.role == RoleEnum.administrator).first()
+        if not admin_exists:
+            admin_user = User(
+                full_name="System Administrator",
+                email="admin@skincareplanner.com",
+                hashed_password=hash_password("adminpassword123"),
+                role=RoleEnum.administrator,
+                is_active=True
+            )
+            db.add(admin_user)
+            db.commit()
+            print("[SEED] Created default admin user: admin@skincareplanner.com / adminpassword123")
+    except Exception as e:
+        print("[SEED] Admin seed failed:", e)
+    finally:
+        db.close()
