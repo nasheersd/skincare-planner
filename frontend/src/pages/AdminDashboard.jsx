@@ -3,18 +3,18 @@ import api from "../api/axios";
 import LoadingState from "../components/LoadingState";
 import PageHeader from "../components/PageHeader";
 
-function AdminStat({ label, value, note }) {
+function AdminStat({ label, value, icon }) {
   return (
-    <div className="card summary-card" style={{ flex: 1 }}>
-      <div className="summary-label" style={{ fontSize: "0.85rem", textTransform: "uppercase", tracking: "0.05em", color: "var(--color-gold)", fontWeight: "bold" }}>
-        {label}
+    <div className="card summary-card" style={{ flex: 1, display: "flex", justifyContent: "space-between", alignItems: "center", padding: "1.25rem 1.5rem" }}>
+      <div>
+        <div className="summary-label" style={{ fontSize: "0.85rem", textTransform: "uppercase", tracking: "0.05em", color: "var(--color-gold)", fontWeight: "bold" }}>
+          {label}
+        </div>
+        <div className="summary-value" style={{ fontSize: "2.2rem", fontWeight: "800", margin: "0.25rem 0", color: "var(--color-ink)" }}>
+          {value}
+        </div>
       </div>
-      <div className="summary-value" style={{ fontSize: "2.2rem", fontWeight: "800", margin: "0.5rem 0", color: "var(--color-ink)" }}>
-        {value}
-      </div>
-      <p className="summary-note" style={{ fontSize: "0.78rem", color: "var(--color-ink-muted)", margin: 0 }}>
-        {note}
-      </p>
+      <div style={{ fontSize: "2rem" }}>{icon}</div>
     </div>
   );
 }
@@ -45,7 +45,7 @@ export default function AdminDashboard() {
     accepting_new_patients: true
   });
 
-  // Add Product Form State (matching Consultant Dashboard styling)
+  // Add Product Form State
   const [showAddForm, setShowAddForm] = useState(false);
   const [newProd, setNewProd] = useState({
     name: "",
@@ -95,7 +95,6 @@ export default function AdminDashboard() {
     }
   };
 
-  // Load everything initially
   useEffect(() => {
     const init = async () => {
       setLoading(true);
@@ -168,7 +167,7 @@ export default function AdminDashboard() {
         usage_instructions: "Apply evenly twice daily after cleansing."
       };
       await api.post("/recommendations/", payload);
-      setStatusMsg({ type: "ok", text: "Product added to clinical catalog successfully!" });
+      setStatusMsg({ type: "ok", text: "Product added to catalog successfully!" });
       setNewProd({
         name: "",
         brand: "",
@@ -181,235 +180,185 @@ export default function AdminDashboard() {
       setShowAddForm(false);
       loadStats();
     } catch (err) {
-      setStatusMsg({ type: "error", text: err.response?.data?.detail || "Failed to add product. Ensure all fields are filled." });
+      setStatusMsg({ type: "error", text: err.response?.data?.detail || "Failed to add product." });
     } finally {
       setAdding(false);
     }
   };
 
-  if (loading) return <LoadingState label="Loading administration workspace…" />;
+  if (loading) return <LoadingState label="Loading workspace…" />;
 
-  const firstName = me?.full_name?.split(" ")[0] || "Administrator";
+  const firstName = me?.full_name?.split(" ")[0] || "Admin";
 
   return (
-    <div className="page">
+    <div className="page" style={{ maxWidth: "1200px", margin: "0 auto", padding: "2rem 1.5rem" }}>
       <PageHeader
-        eyebrow="Admin workspace"
-        title={`Welcome, ${firstName}`}
-        description="Monitor system metrics, manage database profiles, and catalog clinical skincare products."
+        eyebrow="Admin panel"
+        title={`Welcome back, ${firstName}`}
+        description="Monitor system metrics, update roles, edit dermatologist accounts, and manage the product catalog."
       />
 
       {statusMsg && (
-        <div className={`status-msg ${statusMsg.type}`} style={{ marginBottom: "1.5rem" }}>
+        <div className={`status-msg ${statusMsg.type}`} style={{ marginBottom: "1.5rem", borderRadius: "8px" }}>
           {statusMsg.text}
           <button className="status-close" onClick={() => setStatusMsg(null)}>×</button>
         </div>
       )}
 
-      {/* Tabs Row */}
-      <div className="tab-row" style={{ display: "flex", gap: "0.5rem", marginBottom: "2rem", borderBottom: "1px solid var(--color-border)", paddingBottom: "0.5rem" }}>
+      {/* Modern Tab Menu */}
+      <div className="tab-row" style={{ display: "flex", gap: "0.75rem", marginBottom: "2rem", borderBottom: "1px solid var(--color-border)", paddingBottom: "0.75rem" }}>
         <button
           className={`btn ${activeTab === "overview" ? "btn-primary" : "btn-secondary"}`}
           onClick={() => setActiveTab("overview")}
+          style={{ padding: "0.5rem 1.25rem", borderRadius: "6px" }}
         >
           📈 Stats Overview
         </button>
         <button
           className={`btn ${activeTab === "users" ? "btn-primary" : "btn-secondary"}`}
           onClick={() => setActiveTab("users")}
+          style={{ padding: "0.5rem 1.25rem", borderRadius: "6px" }}
         >
           👥 Manage Users
         </button>
         <button
           className={`btn ${activeTab === "dermatologists" ? "btn-primary" : "btn-secondary"}`}
           onClick={() => setActiveTab("dermatologists")}
+          style={{ padding: "0.5rem 1.25rem", borderRadius: "6px" }}
         >
           🩺 Clinic Profiles
         </button>
       </div>
 
-      {/* OVERVIEW TAB */}
+      {/* OVERVIEW SUMMARY */}
       {activeTab === "overview" && stats && (
-        <div style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "2.5rem" }}>
           
-          {/* Workspace summary (exactly like Consultant dashboard summary cards) */}
-          <section className="section" style={{ margin: 0 }}>
-            <h2 className="section-title" style={{ fontSize: "1.1rem" }}>Workspace summary</h2>
-            <div className="card-grid" style={{ display: "flex", flexWrap: "wrap", gap: "1.5rem" }}>
-              <AdminStat
-                label="Workspace access"
-                value="Private"
-                note="Admin panel routes are protected and gated."
-              />
-              <AdminStat
-                label="Total Users"
-                value={usersData.total_count}
-                note="Registered user accounts in Postgres database."
-              />
-              <AdminStat
-                label="Dermatologists"
-                value={stats.total_dermatologists}
-                note="Active clinical profiles."
-              />
-              <AdminStat
-                label="Catalog Products"
-                value={stats.total_products}
-                note="Skincare products in Mongo catalog."
-              />
-            </div>
-          </section>
+          <div className="card-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "1.5rem" }}>
+            <AdminStat label="Total Registered" value={usersData.total_count} icon="👥" />
+            <AdminStat label="Dermatologists" value={stats.total_dermatologists} icon="🩺" />
+            <AdminStat label="Products in Catalog" value={stats.total_products} icon="🧴" />
+          </div>
 
-          {/* Add Product Catalog Management (Matches Consultant style) */}
-          <section className="section" style={{ margin: 0 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+          {/* Clean product insert panel */}
+          <div className="card" style={{ padding: "1.5rem" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <div>
-                <h2 className="section-title" style={{ margin: 0 }}>Clinical Products & Recommendation Catalog</h2>
-                <p style={{ margin: "0.2rem 0 0", color: "var(--color-ink-muted)", fontSize: "0.88rem" }}>
-                  Add and manage recommended products tailored for patient routines.
+                <h3 style={{ margin: 0 }}>Add Skincare Product</h3>
+                <p style={{ margin: "0.25rem 0 0 0", color: "var(--color-fg-muted)", fontSize: "0.85rem" }}>
+                  Insert new products into the global catalog for patient routines.
                 </p>
               </div>
               <button
                 onClick={() => setShowAddForm(!showAddForm)}
                 className="btn btn-primary"
-                style={{ borderRadius: "var(--radius-sm)" }}
+                style={{ padding: "0.5rem 1rem", borderRadius: "6px" }}
               >
-                {showAddForm ? "Cancel" : "➕ Add Product"}
+                {showAddForm ? "Cancel" : "➕ Create Product"}
               </button>
             </div>
 
             {showAddForm && (
-              <div className="card" style={{ marginBottom: "1.5rem", background: "var(--color-primary-tint)", border: "1px solid var(--color-primary)" }}>
-                <h3 style={{ marginTop: 0 }}>Add New Skincare Product</h3>
-                <form onSubmit={handleAddProduct} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
-                    <div className="field">
-                      <label>Product Name</label>
-                      <input
-                        type="text"
-                        className="input"
-                        value={newProd.name}
-                        onChange={(e) => setNewProd({ ...newProd, name: e.target.value })}
-                        required
-                      />
-                    </div>
-                    <div className="field">
-                      <label>Brand</label>
-                      <input
-                        type="text"
-                        className="input"
-                        value={newProd.brand}
-                        onChange={(e) => setNewProd({ ...newProd, brand: e.target.value })}
-                        required
-                      />
-                    </div>
-                  </div>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "1rem" }}>
-                    <div className="field">
-                      <label>Category</label>
-                      <select
-                        className="input"
-                        value={newProd.category}
-                        onChange={(e) => setNewProd({ ...newProd, category: e.target.value })}
-                      >
-                        <option value="Cleanser">Cleanser</option>
-                        <option value="Moisturizer">Moisturizer</option>
-                        <option value="Serum">Serum</option>
-                        <option value="Sunscreen">Sunscreen</option>
-                        <option value="Treatment">Treatment</option>
-                        <option value="Toner">Toner</option>
-                      </select>
-                    </div>
-                    <div className="field">
-                      <label>Price ($)</label>
-                      <input
-                        type="number"
-                        step="0.01"
-                        className="input"
-                        value={newProd.price}
-                        onChange={(e) => setNewProd({ ...newProd, price: e.target.value })}
-                        required
-                      />
-                    </div>
-                    <div className="field">
-                      <label>Suitable Skin Types (comma separated)</label>
-                      <input
-                        type="text"
-                        className="input"
-                        value={newProd.suitable_skin_types}
-                        onChange={(e) => setNewProd({ ...newProd, suitable_skin_types: e.target.value })}
-                        required
-                      />
-                    </div>
-                  </div>
+              <form onSubmit={handleAddProduct} style={{ display: "flex", flexDirection: "column", gap: "1.25rem", marginTop: "1.5rem", borderTop: "1px solid var(--color-border)", paddingTop: "1.5rem" }}>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
                   <div className="field">
-                    <label>Key Active Ingredients (comma separated)</label>
+                    <label>Product Name</label>
                     <input
                       type="text"
                       className="input"
-                      value={newProd.key_active_ingredients}
-                      onChange={(e) => setNewProd({ ...newProd, key_active_ingredients: e.target.value })}
+                      value={newProd.name}
+                      onChange={(e) => setNewProd({ ...newProd, name: e.target.value })}
                       required
                     />
                   </div>
                   <div className="field">
-                    <label>Description</label>
-                    <textarea
-                      rows="3"
+                    <label>Brand Name</label>
+                    <input
+                      type="text"
                       className="input"
-                      value={newProd.description}
-                      onChange={(e) => setNewProd({ ...newProd, description: e.target.value })}
+                      value={newProd.brand}
+                      onChange={(e) => setNewProd({ ...newProd, brand: e.target.value })}
                       required
                     />
                   </div>
-                  <button type="submit" className="btn btn-primary" disabled={adding} style={{ width: "max-content" }}>
-                    {adding ? "Adding..." : "Add Product to Catalog"}
-                  </button>
-                </form>
-              </div>
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "1rem" }}>
+                  <div className="field">
+                    <label>Category</label>
+                    <select
+                      className="input"
+                      value={newProd.category}
+                      onChange={(e) => setNewProd({ ...newProd, category: e.target.value })}
+                    >
+                      <option value="Cleanser">Cleanser</option>
+                      <option value="Moisturizer">Moisturizer</option>
+                      <option value="Serum">Serum</option>
+                      <option value="Sunscreen">Sunscreen</option>
+                      <option value="Treatment">Treatment</option>
+                      <option value="Toner">Toner</option>
+                    </select>
+                  </div>
+                  <div className="field">
+                    <label>Price ($)</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      className="input"
+                      value={newProd.price}
+                      onChange={(e) => setNewProd({ ...newProd, price: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div className="field">
+                    <label>Suitable Skin Types</label>
+                    <input
+                      type="text"
+                      className="input"
+                      value={newProd.suitable_skin_types}
+                      onChange={(e) => setNewProd({ ...newProd, suitable_skin_types: e.target.value })}
+                      required
+                    />
+                  </div>
+                </div>
+                <div className="field">
+                  <label>Key Ingredients (comma separated)</label>
+                  <input
+                    type="text"
+                    className="input"
+                    value={newProd.key_active_ingredients}
+                    onChange={(e) => setNewProd({ ...newProd, key_active_ingredients: e.target.value })}
+                    required
+                  />
+                </div>
+                <div className="field">
+                  <label>Description</label>
+                  <textarea
+                    rows="3"
+                    className="input"
+                    value={newProd.description}
+                    onChange={(e) => setNewProd({ ...newProd, description: e.target.value })}
+                    required
+                  />
+                </div>
+                <button type="submit" className="btn btn-primary" disabled={adding} style={{ width: "max-content", alignSelf: "flex-start", padding: "0.6rem 1.5rem" }}>
+                  {adding ? "Saving Product..." : "Save Product"}
+                </button>
+              </form>
             )}
-          </section>
-
-          <div className="card" style={{ borderLeft: "4px solid var(--color-primary)", margin: 0 }}>
-            <h3>System Status & Infrastructure</h3>
-            <p style={{ margin: "0.5rem 0 1rem 0", color: "var(--color-fg-muted)", fontSize: "0.9rem" }}>
-              PostgreSQL and MongoDB databases are fully connected and operational.
-            </p>
-            <div className="detail-grid" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1rem" }}>
-              <div className="detail-box" style={{ background: "var(--color-surface-sunken)" }}>
-                <strong>Total Administrators</strong>
-                <p style={{ fontSize: "1.2rem", fontWeight: "bold", margin: "0.25rem 0 0 0" }}>
-                  {stats.total_users_by_role.administrator || 0}
-                </p>
-              </div>
-              <div className="detail-box" style={{ background: "var(--color-surface-sunken)" }}>
-                <strong>Core Database</strong>
-                <p style={{ fontSize: "1.2rem", fontWeight: "bold", color: "green", margin: "0.25rem 0 0 0" }}>
-                  ONLINE (Postgres)
-                </p>
-              </div>
-              <div className="detail-box" style={{ background: "var(--color-surface-sunken)" }}>
-                <strong>No-SQL Catalog</strong>
-                <p style={{ fontSize: "1.2rem", fontWeight: "bold", color: "green", margin: "0.25rem 0 0 0" }}>
-                  CONNECTED (Mongo)
-                </p>
-              </div>
-            </div>
           </div>
         </div>
       )}
 
-      {/* USERS MANAGEMENT TAB */}
+      {/* USERS TAB */}
       {activeTab === "users" && (
         <div className="card" style={{ display: "flex", flexDirection: "column", gap: "1.5rem", margin: 0 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem" }}>
-            <h3>All Registered Accounts ({usersData.total_count})</h3>
-            
-            {/* Filter by role */}
+            <h3 style={{ margin: 0 }}>User Accounts List</h3>
             <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-              <span style={{ fontSize: "0.9rem", color: "var(--color-fg-muted)" }}>Filter Role:</span>
+              <span style={{ fontSize: "0.88rem", color: "var(--color-fg-muted)" }}>Filter by Role:</span>
               <select
                 className="input"
-                style={{ padding: "0.35rem 0.75rem", fontSize: "0.88rem", width: "auto" }}
+                style={{ padding: "0.35rem 0.75rem", fontSize: "0.85rem", width: "auto" }}
                 value={usersRoleFilter}
                 onChange={(e) => {
                   setUsersRoleFilter(e.target.value);
@@ -463,7 +412,7 @@ export default function AdminDashboard() {
                       {usr.is_active ? "Active" : "Suspended"}
                     </button>
                   </td>
-                  <td style={{ padding: "0.75rem", fontSize: "0.88rem", color: "var(--color-fg-muted)" }}>
+                  <td style={{ padding: "0.75rem", fontSize: "0.85rem", color: "var(--color-fg-muted)" }}>
                     {new Date(usr.created_at).toLocaleDateString()}
                   </td>
                 </tr>
@@ -471,9 +420,9 @@ export default function AdminDashboard() {
             </tbody>
           </table>
 
-          {/* Pagination Controllers */}
+          {/* Pagination */}
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "1rem" }}>
-            <span style={{ fontSize: "0.88rem", color: "var(--color-fg-muted)" }}>
+            <span style={{ fontSize: "0.85rem", color: "var(--color-fg-muted)" }}>
               Page {usersData.page} of {usersData.pages}
             </span>
             <div style={{ display: "flex", gap: "0.5rem" }}>
@@ -481,7 +430,7 @@ export default function AdminDashboard() {
                 className="btn btn-secondary"
                 disabled={usersPage <= 1}
                 onClick={() => setUsersPage((prev) => prev - 1)}
-                style={{ padding: "0.35rem 0.75rem", fontSize: "0.85rem" }}
+                style={{ padding: "0.35rem 0.75rem", fontSize: "0.82rem" }}
               >
                 Previous
               </button>
@@ -489,7 +438,7 @@ export default function AdminDashboard() {
                 className="btn btn-secondary"
                 disabled={usersPage >= usersData.pages}
                 onClick={() => setUsersPage((prev) => prev + 1)}
-                style={{ padding: "0.35rem 0.75rem", fontSize: "0.85rem" }}
+                style={{ padding: "0.35rem 0.75rem", fontSize: "0.82rem" }}
               >
                 Next
               </button>
@@ -498,10 +447,10 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* DERMATOLOGISTS/CLINIC TAB */}
+      {/* CLINIC PROFILES TAB */}
       {activeTab === "dermatologists" && (
         <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-          <div className="card-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(350px, 1fr))", gap: "1.5rem" }}>
+          <div className="card-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(360px, 1fr))", gap: "1.5rem" }}>
             {dermatologists.map((derma) => {
               const isEditing = editingDermaId === derma.id;
               return (
@@ -509,12 +458,12 @@ export default function AdminDashboard() {
                   <div>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "0.75rem" }}>
                       <div>
-                        <span className="eyebrow" style={{ textTransform: "capitalize" }}>{derma.specialty || "Dermatologist Specialist"}</span>
+                        <span className="eyebrow" style={{ textTransform: "capitalize" }}>{derma.specialty || "Specialist"}</span>
                         <h3 style={{ margin: "0.2rem 0" }}>{derma.full_name}</h3>
-                        <p style={{ margin: 0, fontSize: "0.82rem", color: "var(--color-fg-muted)" }}>{derma.email}</p>
+                        <p style={{ margin: 0, fontSize: "0.8rem", color: "var(--color-fg-muted)" }}>{derma.email}</p>
                       </div>
                       <span className={`status-pill ${derma.accepting_new_patients ? "status-accepted" : "status-pending"}`}>
-                        {derma.accepting_new_patients ? "Accepting Patients" : "Intake Closed"}
+                        {derma.accepting_new_patients ? "Accepting Patients" : "Closed"}
                       </span>
                     </div>
 
@@ -523,7 +472,7 @@ export default function AdminDashboard() {
                     {isEditing ? (
                       <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
                         <div className="field">
-                          <label style={{ fontSize: "0.8rem", fontWeight: "bold" }}>Clinic Name</label>
+                          <label style={{ fontSize: "0.78rem", fontWeight: "bold" }}>Clinic Name</label>
                           <input
                             type="text"
                             className="input"
@@ -532,7 +481,7 @@ export default function AdminDashboard() {
                           />
                         </div>
                         <div className="field">
-                          <label style={{ fontSize: "0.8rem", fontWeight: "bold" }}>Clinic Phone</label>
+                          <label style={{ fontSize: "0.78rem", fontWeight: "bold" }}>Clinic Phone</label>
                           <input
                             type="text"
                             className="input"
@@ -541,16 +490,7 @@ export default function AdminDashboard() {
                           />
                         </div>
                         <div className="field">
-                          <label style={{ fontSize: "0.8rem", fontWeight: "bold" }}>Clinic Specialty</label>
-                          <input
-                            type="text"
-                            className="input"
-                            value={editForm.specialty}
-                            onChange={(e) => setEditForm({ ...editForm, specialty: e.target.value })}
-                          />
-                        </div>
-                        <div className="field">
-                          <label style={{ fontSize: "0.8rem", fontWeight: "bold" }}>Clinic Address</label>
+                          <label style={{ fontSize: "0.78rem", fontWeight: "bold" }}>Clinic Address</label>
                           <input
                             type="text"
                             className="input"
@@ -559,7 +499,7 @@ export default function AdminDashboard() {
                           />
                         </div>
                         <div className="field">
-                          <label style={{ fontSize: "0.8rem", fontWeight: "bold" }}>Website URL</label>
+                          <label style={{ fontSize: "0.78rem", fontWeight: "bold" }}>Website URL</label>
                           <input
                             type="text"
                             className="input"
@@ -573,11 +513,11 @@ export default function AdminDashboard() {
                             checked={editForm.accepting_new_patients}
                             onChange={(e) => setEditForm({ ...editForm, accepting_new_patients: e.target.checked })}
                           />
-                          <span style={{ fontSize: "0.88rem" }}>Accepting new patients</span>
+                          <span style={{ fontSize: "0.85rem" }}>Accepting new patients</span>
                         </label>
                       </div>
                     ) : (
-                      <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem", fontSize: "0.9rem" }}>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem", fontSize: "0.88rem" }}>
                         <p style={{ margin: 0 }}><strong>Clinic:</strong> {derma.clinic_name || "Not specified"}</p>
                         <p style={{ margin: 0 }}><strong>Phone:</strong> {derma.phone || "Not specified"}</p>
                         <p style={{ margin: 0 }}><strong>Address:</strong> {derma.address || "Not specified"}</p>
@@ -591,19 +531,6 @@ export default function AdminDashboard() {
                             "Not specified"
                           )}
                         </p>
-                        {derma.certificate_url && (
-                          <p style={{ margin: "0.5rem 0 0 0" }}>
-                            <a
-                              href={`http://localhost:8000${derma.certificate_url}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="btn btn-secondary"
-                              style={{ display: "inline-block", padding: "0.25rem 0.5rem", fontSize: "0.78rem" }}
-                            >
-                              📄 Preview License Certificate
-                            </a>
-                          </p>
-                        )}
                       </div>
                     )}
                   </div>
@@ -615,7 +542,7 @@ export default function AdminDashboard() {
                           type="button"
                           className="btn btn-primary"
                           onClick={() => handleDermaSave(derma.id)}
-                          style={{ padding: "0.4rem 0.8rem", fontSize: "0.85rem" }}
+                          style={{ padding: "0.35rem 0.75rem", fontSize: "0.82rem" }}
                         >
                           Save
                         </button>
@@ -623,7 +550,7 @@ export default function AdminDashboard() {
                           type="button"
                           className="btn btn-secondary"
                           onClick={() => setEditingDermaId(null)}
-                          style={{ padding: "0.4rem 0.8rem", fontSize: "0.85rem" }}
+                          style={{ padding: "0.35rem 0.75rem", fontSize: "0.82rem" }}
                         >
                           Cancel
                         </button>
@@ -633,7 +560,7 @@ export default function AdminDashboard() {
                         type="button"
                         className="btn btn-secondary"
                         onClick={() => startEditingDerma(derma)}
-                        style={{ padding: "0.4rem 0.8rem", fontSize: "0.85rem" }}
+                        style={{ padding: "0.35rem 0.75rem", fontSize: "0.82rem" }}
                       >
                         ✍️ Edit Clinic Info
                       </button>
