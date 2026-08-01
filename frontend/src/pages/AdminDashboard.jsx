@@ -1,23 +1,7 @@
 import { useEffect, useState } from "react";
 import api from "../api/axios";
 import LoadingState from "../components/LoadingState";
-import PageHeader from "../components/PageHeader";
-
-function AdminStat({ label, value, icon }) {
-  return (
-    <div className="card summary-card" style={{ flex: 1, display: "flex", justifyContent: "space-between", alignItems: "center", padding: "1.25rem 1.5rem" }}>
-      <div>
-        <div className="summary-label" style={{ fontSize: "0.85rem", textTransform: "uppercase", tracking: "0.05em", color: "var(--color-gold)", fontWeight: "bold" }}>
-          {label}
-        </div>
-        <div className="summary-value" style={{ fontSize: "2.2rem", fontWeight: "800", margin: "0.25rem 0", color: "var(--color-ink)" }}>
-          {value}
-        </div>
-      </div>
-      <div style={{ fontSize: "2rem" }}>{icon}</div>
-    </div>
-  );
-}
+import "./AdminDashboard.css";
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("overview");
@@ -186,392 +170,439 @@ export default function AdminDashboard() {
     }
   };
 
-  if (loading) return <LoadingState label="Loading workspace…" />;
+  if (loading) return <LoadingState label="Loading administration console…" />;
 
-  const firstName = me?.full_name?.split(" ")[0] || "Admin";
+  const breadcrumbText = activeTab === "overview" ? "Overview" : activeTab === "users" ? "Users" : "Clinic Profiles";
 
   return (
-    <div className="page" style={{ maxWidth: "1200px", margin: "0 auto", padding: "2rem 1.5rem" }}>
-      <PageHeader
-        eyebrow="Admin panel"
-        title={`Welcome back, ${firstName}`}
-        description="Monitor system metrics, update roles, edit dermatologist accounts, and manage the product catalog."
-      />
-
-      {statusMsg && (
-        <div className={`status-msg ${statusMsg.type}`} style={{ marginBottom: "1.5rem", borderRadius: "8px" }}>
-          {statusMsg.text}
-          <button className="status-close" onClick={() => setStatusMsg(null)}>×</button>
+    <div className="admin-shell">
+      {/* Sticky Breadcrumb Header */}
+      <header className="admin-header">
+        <div>
+          <div className="admin-breadcrumbs">Admin / {breadcrumbText}</div>
+          <h1 className="admin-title-text">Skincare Planner Console</h1>
         </div>
-      )}
+        <div style={{ fontSize: "0.85rem", color: "#718096" }}>
+          Logged in as: <strong>{me?.full_name}</strong>
+        </div>
+      </header>
 
-      {/* Modern Tab Menu */}
-      <div className="tab-row" style={{ display: "flex", gap: "0.75rem", marginBottom: "2rem", borderBottom: "1px solid var(--color-border)", paddingBottom: "0.75rem" }}>
-        <button
-          className={`btn ${activeTab === "overview" ? "btn-primary" : "btn-secondary"}`}
-          onClick={() => setActiveTab("overview")}
-          style={{ padding: "0.5rem 1.25rem", borderRadius: "6px" }}
-        >
-          📈 Stats Overview
-        </button>
-        <button
-          className={`btn ${activeTab === "users" ? "btn-primary" : "btn-secondary"}`}
-          onClick={() => setActiveTab("users")}
-          style={{ padding: "0.5rem 1.25rem", borderRadius: "6px" }}
-        >
-          👥 Manage Users
-        </button>
-        <button
-          className={`btn ${activeTab === "dermatologists" ? "btn-primary" : "btn-secondary"}`}
-          onClick={() => setActiveTab("dermatologists")}
-          style={{ padding: "0.5rem 1.25rem", borderRadius: "6px" }}
-        >
-          🩺 Clinic Profiles
-        </button>
-      </div>
-
-      {/* OVERVIEW SUMMARY */}
-      {activeTab === "overview" && stats && (
-        <div style={{ display: "flex", flexDirection: "column", gap: "2.5rem" }}>
-          
-          <div className="card-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "1.5rem" }}>
-            <AdminStat label="Total Registered" value={usersData.total_count} icon="👥" />
-            <AdminStat label="Dermatologists" value={stats.total_dermatologists} icon="🩺" />
-            <AdminStat label="Products in Catalog" value={stats.total_products} icon="🧴" />
+      <div className="admin-container">
+        {/* Status Alerts */}
+        {statusMsg && (
+          <div className={`status-msg ${statusMsg.type}`} style={{ marginBottom: "1.25rem", borderRadius: "4px", fontSize: "0.85rem" }}>
+            {statusMsg.text}
+            <button className="status-close" onClick={() => setStatusMsg(null)}>×</button>
           </div>
+        )}
 
-          {/* Clean product insert panel */}
-          <div className="card" style={{ padding: "1.5rem" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <div>
-                <h3 style={{ margin: 0 }}>Add Skincare Product</h3>
-                <p style={{ margin: "0.25rem 0 0 0", color: "var(--color-fg-muted)", fontSize: "0.85rem" }}>
-                  Insert new products into the global catalog for patient routines.
-                </p>
+        {/* Tab Selection */}
+        <div className="admin-tab-bar">
+          <button
+            className={`admin-tab-btn ${activeTab === "overview" ? "active" : ""}`}
+            onClick={() => setActiveTab("overview")}
+          >
+            Stats Overview
+          </button>
+          <button
+            className={`admin-tab-btn ${activeTab === "users" ? "active" : ""}`}
+            onClick={() => setActiveTab("users")}
+          >
+            Manage Users
+          </button>
+          <button
+            className={`admin-tab-btn ${activeTab === "dermatologists" ? "active" : ""}`}
+            onClick={() => setActiveTab("dermatologists")}
+          >
+            Clinic Profiles
+          </button>
+        </div>
+
+        {/* OVERVIEW TAB */}
+        {activeTab === "overview" && stats && (
+          <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+            
+            <div className="admin-stats-grid">
+              <div className="admin-stat-card">
+                <div>
+                  <div className="admin-stat-label">Total Accounts</div>
+                  <div className="admin-stat-value">{usersData.total_count}</div>
+                </div>
+                <div className="admin-stat-icon">👥</div>
               </div>
-              <button
-                onClick={() => setShowAddForm(!showAddForm)}
-                className="btn btn-primary"
-                style={{ padding: "0.5rem 1rem", borderRadius: "6px" }}
-              >
-                {showAddForm ? "Cancel" : "➕ Create Product"}
-              </button>
+              <div className="admin-stat-card">
+                <div>
+                  <div className="admin-stat-label">Active Clinics</div>
+                  <div className="admin-stat-value">{stats.total_dermatologists}</div>
+                </div>
+                <div className="admin-stat-icon">🩺</div>
+              </div>
+              <div className="admin-stat-card">
+                <div>
+                  <div className="admin-stat-label">Catalog Products</div>
+                  <div className="admin-stat-value">{stats.total_products}</div>
+                </div>
+                <div className="admin-stat-icon">🧴</div>
+              </div>
             </div>
 
-            {showAddForm && (
-              <form onSubmit={handleAddProduct} style={{ display: "flex", flexDirection: "column", gap: "1.25rem", marginTop: "1.5rem", borderTop: "1px solid var(--color-border)", paddingTop: "1.5rem" }}>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
-                  <div className="field">
-                    <label>Product Name</label>
-                    <input
-                      type="text"
-                      className="input"
-                      value={newProd.name}
-                      onChange={(e) => setNewProd({ ...newProd, name: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <div className="field">
-                    <label>Brand Name</label>
-                    <input
-                      type="text"
-                      className="input"
-                      value={newProd.brand}
-                      onChange={(e) => setNewProd({ ...newProd, brand: e.target.value })}
-                      required
-                    />
-                  </div>
+            {/* Product Catalog Section */}
+            <div className="admin-card">
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div>
+                  <h2 className="admin-card-title">skincare catalog administration</h2>
+                  <p style={{ margin: "0.2rem 0 0 0", color: "#718096", fontSize: "0.82rem" }}>
+                    Insert product records into the MongoDB skincare product catalog.
+                  </p>
                 </div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "1rem" }}>
-                  <div className="field">
-                    <label>Category</label>
-                    <select
-                      className="input"
-                      value={newProd.category}
-                      onChange={(e) => setNewProd({ ...newProd, category: e.target.value })}
-                    >
-                      <option value="Cleanser">Cleanser</option>
-                      <option value="Moisturizer">Moisturizer</option>
-                      <option value="Serum">Serum</option>
-                      <option value="Sunscreen">Sunscreen</option>
-                      <option value="Treatment">Treatment</option>
-                      <option value="Toner">Toner</option>
-                    </select>
-                  </div>
-                  <div className="field">
-                    <label>Price ($)</label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      className="input"
-                      value={newProd.price}
-                      onChange={(e) => setNewProd({ ...newProd, price: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <div className="field">
-                    <label>Suitable Skin Types</label>
-                    <input
-                      type="text"
-                      className="input"
-                      value={newProd.suitable_skin_types}
-                      onChange={(e) => setNewProd({ ...newProd, suitable_skin_types: e.target.value })}
-                      required
-                    />
-                  </div>
-                </div>
-                <div className="field">
-                  <label>Key Ingredients (comma separated)</label>
-                  <input
-                    type="text"
-                    className="input"
-                    value={newProd.key_active_ingredients}
-                    onChange={(e) => setNewProd({ ...newProd, key_active_ingredients: e.target.value })}
-                    required
-                  />
-                </div>
-                <div className="field">
-                  <label>Description</label>
-                  <textarea
-                    rows="3"
-                    className="input"
-                    value={newProd.description}
-                    onChange={(e) => setNewProd({ ...newProd, description: e.target.value })}
-                    required
-                  />
-                </div>
-                <button type="submit" className="btn btn-primary" disabled={adding} style={{ width: "max-content", alignSelf: "flex-start", padding: "0.6rem 1.5rem" }}>
-                  {adding ? "Saving Product..." : "Save Product"}
+                <button
+                  onClick={() => setShowAddForm(!showAddForm)}
+                  className="admin-btn admin-btn-primary"
+                >
+                  {showAddForm ? "Cancel" : "Add Product"}
                 </button>
-              </form>
-            )}
-          </div>
-        </div>
-      )}
+              </div>
 
-      {/* USERS TAB */}
-      {activeTab === "users" && (
-        <div className="card" style={{ display: "flex", flexDirection: "column", gap: "1.5rem", margin: 0 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem" }}>
-            <h3 style={{ margin: 0 }}>User Accounts List</h3>
-            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-              <span style={{ fontSize: "0.88rem", color: "var(--color-fg-muted)" }}>Filter by Role:</span>
-              <select
-                className="input"
-                style={{ padding: "0.35rem 0.75rem", fontSize: "0.85rem", width: "auto" }}
-                value={usersRoleFilter}
-                onChange={(e) => {
-                  setUsersRoleFilter(e.target.value);
-                  setUsersPage(1);
-                }}
-              >
-                <option value="all">All Roles</option>
-                <option value="user">User</option>
-                <option value="skincare_consultant">Skincare Consultant</option>
-                <option value="dermatologist">Dermatologist</option>
-                <option value="administrator">Administrator</option>
-              </select>
-            </div>
-          </div>
-
-          <table className="table" style={{ width: "100%", borderCollapse: "collapse" }}>
-            <thead>
-              <tr style={{ borderBottom: "2px solid var(--color-border)", textAlign: "left" }}>
-                <th style={{ padding: "0.75rem" }}>Full Name</th>
-                <th style={{ padding: "0.75rem" }}>Email</th>
-                <th style={{ padding: "0.75rem" }}>Account Role</th>
-                <th style={{ padding: "0.75rem" }}>Access Status</th>
-                <th style={{ padding: "0.75rem" }}>Created Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              {usersData.users.map((usr) => (
-                <tr key={usr.id} style={{ borderBottom: "1px solid var(--color-border)" }}>
-                  <td style={{ padding: "0.75rem" }}><strong>{usr.full_name}</strong></td>
-                  <td style={{ padding: "0.75rem", color: "var(--color-fg-muted)" }}>{usr.email}</td>
-                  <td style={{ padding: "0.75rem" }}>
-                    <select
-                      className="input"
-                      style={{ padding: "0.25rem 0.5rem", fontSize: "0.85rem", width: "auto", margin: 0 }}
-                      value={usr.role}
-                      onChange={(e) => handleRoleChange(usr.id, e.target.value)}
-                    >
-                      <option value="user">User</option>
-                      <option value="skincare_consultant">Skincare Consultant</option>
-                      <option value="dermatologist">Dermatologist</option>
-                      <option value="administrator">Administrator</option>
-                    </select>
-                  </td>
-                  <td style={{ padding: "0.75rem" }}>
-                    <button
-                      type="button"
-                      className={`status-pill ${usr.is_active ? "status-accepted" : "status-rejected"}`}
-                      style={{ border: "none", cursor: "pointer", fontWeight: "bold" }}
-                      onClick={() => handleStatusToggle(usr.id, usr.is_active)}
-                    >
-                      {usr.is_active ? "Active" : "Suspended"}
-                    </button>
-                  </td>
-                  <td style={{ padding: "0.75rem", fontSize: "0.85rem", color: "var(--color-fg-muted)" }}>
-                    {new Date(usr.created_at).toLocaleDateString()}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-
-          {/* Pagination */}
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "1rem" }}>
-            <span style={{ fontSize: "0.85rem", color: "var(--color-fg-muted)" }}>
-              Page {usersData.page} of {usersData.pages}
-            </span>
-            <div style={{ display: "flex", gap: "0.5rem" }}>
-              <button
-                className="btn btn-secondary"
-                disabled={usersPage <= 1}
-                onClick={() => setUsersPage((prev) => prev - 1)}
-                style={{ padding: "0.35rem 0.75rem", fontSize: "0.82rem" }}
-              >
-                Previous
-              </button>
-              <button
-                className="btn btn-secondary"
-                disabled={usersPage >= usersData.pages}
-                onClick={() => setUsersPage((prev) => prev + 1)}
-                style={{ padding: "0.35rem 0.75rem", fontSize: "0.82rem" }}
-              >
-                Next
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* CLINIC PROFILES TAB */}
-      {activeTab === "dermatologists" && (
-        <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-          <div className="card-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(360px, 1fr))", gap: "1.5rem" }}>
-            {dermatologists.map((derma) => {
-              const isEditing = editingDermaId === derma.id;
-              return (
-                <div key={derma.id} className="card" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", margin: 0 }}>
-                  <div>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "0.75rem" }}>
-                      <div>
-                        <span className="eyebrow" style={{ textTransform: "capitalize" }}>{derma.specialty || "Specialist"}</span>
-                        <h3 style={{ margin: "0.2rem 0" }}>{derma.full_name}</h3>
-                        <p style={{ margin: 0, fontSize: "0.8rem", color: "var(--color-fg-muted)" }}>{derma.email}</p>
-                      </div>
-                      <span className={`status-pill ${derma.accepting_new_patients ? "status-accepted" : "status-pending"}`}>
-                        {derma.accepting_new_patients ? "Accepting Patients" : "Closed"}
-                      </span>
+              {showAddForm && (
+                <form onSubmit={handleAddProduct} style={{ display: "flex", flexDirection: "column", gap: "1rem", marginTop: "1.5rem", borderTop: "1px solid #E2E8F0", paddingTop: "1.5rem" }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+                    <div className="field">
+                      <label style={{ fontSize: "0.78rem", fontWeight: "bold" }}>Product Name</label>
+                      <input
+                        type="text"
+                        className="admin-input"
+                        value={newProd.name}
+                        onChange={(e) => setNewProd({ ...newProd, name: e.target.value })}
+                        required
+                      />
                     </div>
-
-                    <hr style={{ border: "0", borderTop: "1px solid var(--color-border)", margin: "0.75rem 0" }} />
-
-                    {isEditing ? (
-                      <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-                        <div className="field">
-                          <label style={{ fontSize: "0.78rem", fontWeight: "bold" }}>Clinic Name</label>
-                          <input
-                            type="text"
-                            className="input"
-                            value={editForm.clinic_name}
-                            onChange={(e) => setEditForm({ ...editForm, clinic_name: e.target.value })}
-                          />
-                        </div>
-                        <div className="field">
-                          <label style={{ fontSize: "0.78rem", fontWeight: "bold" }}>Clinic Phone</label>
-                          <input
-                            type="text"
-                            className="input"
-                            value={editForm.phone}
-                            onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
-                          />
-                        </div>
-                        <div className="field">
-                          <label style={{ fontSize: "0.78rem", fontWeight: "bold" }}>Clinic Address</label>
-                          <input
-                            type="text"
-                            className="input"
-                            value={editForm.address}
-                            onChange={(e) => setEditForm({ ...editForm, address: e.target.value })}
-                          />
-                        </div>
-                        <div className="field">
-                          <label style={{ fontSize: "0.78rem", fontWeight: "bold" }}>Website URL</label>
-                          <input
-                            type="text"
-                            className="input"
-                            value={editForm.website}
-                            onChange={(e) => setEditForm({ ...editForm, website: e.target.value })}
-                          />
-                        </div>
-                        <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginTop: "0.5rem", cursor: "pointer" }}>
-                          <input
-                            type="checkbox"
-                            checked={editForm.accepting_new_patients}
-                            onChange={(e) => setEditForm({ ...editForm, accepting_new_patients: e.target.checked })}
-                          />
-                          <span style={{ fontSize: "0.85rem" }}>Accepting new patients</span>
-                        </label>
-                      </div>
-                    ) : (
-                      <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem", fontSize: "0.88rem" }}>
-                        <p style={{ margin: 0 }}><strong>Clinic:</strong> {derma.clinic_name || "Not specified"}</p>
-                        <p style={{ margin: 0 }}><strong>Phone:</strong> {derma.phone || "Not specified"}</p>
-                        <p style={{ margin: 0 }}><strong>Address:</strong> {derma.address || "Not specified"}</p>
-                        <p style={{ margin: 0 }}>
-                          <strong>Website:</strong>{" "}
-                          {derma.website ? (
-                            <a href={derma.website} target="_blank" rel="noopener noreferrer" style={{ color: "var(--color-primary)" }}>
-                              {derma.website}
-                            </a>
-                          ) : (
-                            "Not specified"
-                          )}
-                        </p>
-                      </div>
-                    )}
+                    <div className="field">
+                      <label style={{ fontSize: "0.78rem", fontWeight: "bold" }}>Brand</label>
+                      <input
+                        type="text"
+                        className="admin-input"
+                        value={newProd.brand}
+                        onChange={(e) => setNewProd({ ...newProd, brand: e.target.value })}
+                        required
+                      />
+                    </div>
                   </div>
-
-                  <div style={{ display: "flex", gap: "0.5rem", marginTop: "1.25rem", borderTop: "1px solid var(--color-border)", paddingTop: "0.75rem" }}>
-                    {isEditing ? (
-                      <>
-                        <button
-                          type="button"
-                          className="btn btn-primary"
-                          onClick={() => handleDermaSave(derma.id)}
-                          style={{ padding: "0.35rem 0.75rem", fontSize: "0.82rem" }}
-                        >
-                          Save
-                        </button>
-                        <button
-                          type="button"
-                          className="btn btn-secondary"
-                          onClick={() => setEditingDermaId(null)}
-                          style={{ padding: "0.35rem 0.75rem", fontSize: "0.82rem" }}
-                        >
-                          Cancel
-                        </button>
-                      </>
-                    ) : (
-                      <button
-                        type="button"
-                        className="btn btn-secondary"
-                        onClick={() => startEditingDerma(derma)}
-                        style={{ padding: "0.35rem 0.75rem", fontSize: "0.82rem" }}
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "1rem" }}>
+                    <div className="field">
+                      <label style={{ fontSize: "0.78rem", fontWeight: "bold" }}>Category</label>
+                      <select
+                        className="admin-input"
+                        value={newProd.category}
+                        onChange={(e) => setNewProd({ ...newProd, category: e.target.value })}
                       >
-                        ✍️ Edit Clinic Info
-                      </button>
-                    )}
+                        <option value="Cleanser">Cleanser</option>
+                        <option value="Moisturizer">Moisturizer</option>
+                        <option value="Serum">Serum</option>
+                        <option value="Sunscreen">Sunscreen</option>
+                        <option value="Treatment">Treatment</option>
+                        <option value="Toner">Toner</option>
+                      </select>
+                    </div>
+                    <div className="field">
+                      <label style={{ fontSize: "0.78rem", fontWeight: "bold" }}>Price ($)</label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        className="admin-input"
+                        value={newProd.price}
+                        onChange={(e) => setNewProd({ ...newProd, price: e.target.value })}
+                        required
+                      />
+                    </div>
+                    <div className="field">
+                      <label style={{ fontSize: "0.78rem", fontWeight: "bold" }}>Suitable Skin Types</label>
+                      <input
+                        type="text"
+                        className="admin-input"
+                        value={newProd.suitable_skin_types}
+                        onChange={(e) => setNewProd({ ...newProd, suitable_skin_types: e.target.value })}
+                        required
+                      />
+                    </div>
                   </div>
-                </div>
-              );
-            })}
+                  <div className="field">
+                    <label style={{ fontSize: "0.78rem", fontWeight: "bold" }}>Key Ingredients (comma separated)</label>
+                    <input
+                      type="text"
+                      className="admin-input"
+                      value={newProd.key_active_ingredients}
+                      onChange={(e) => setNewProd({ ...newProd, key_active_ingredients: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div className="field">
+                    <label style={{ fontSize: "0.78rem", fontWeight: "bold" }}>Description</label>
+                    <textarea
+                      rows="3"
+                      className="admin-input"
+                      value={newProd.description}
+                      onChange={(e) => setNewProd({ ...newProd, description: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <button type="submit" className="admin-btn admin-btn-primary" disabled={adding} style={{ width: "max-content", padding: "0.5rem 1.25rem" }}>
+                    {adding ? "Saving..." : "Save Product"}
+                  </button>
+                </form>
+              )}
+            </div>
           </div>
-        </div>
-      )}
+        )}
+
+        {/* USERS TAB */}
+        {activeTab === "users" && (
+          <div className="admin-card">
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+              <h2 className="admin-card-title" style={{ margin: 0 }}>Registered User Directory</h2>
+              
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                <span style={{ fontSize: "0.78rem", fontWeight: "600", color: "#4A5568" }}>Role:</span>
+                <select
+                  className="admin-input"
+                  style={{ width: "auto", padding: "0.25rem 0.5rem", fontSize: "0.8rem" }}
+                  value={usersRoleFilter}
+                  onChange={(e) => {
+                    setUsersRoleFilter(e.target.value);
+                    setUsersPage(1);
+                  }}
+                >
+                  <option value="all">All Roles</option>
+                  <option value="user">User</option>
+                  <option value="skincare_consultant">Skincare Consultant</option>
+                  <option value="dermatologist">Dermatologist</option>
+                  <option value="administrator">Administrator</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="admin-data-table-container">
+              <table className="admin-data-table">
+                <thead>
+                  <tr>
+                    <th>Full Name</th>
+                    <th>Email Address</th>
+                    <th>System Role</th>
+                    <th>Status</th>
+                    <th style={{ textAlign: "right" }}>Registered Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {usersData.users.length === 0 ? (
+                    <tr>
+                      <td colSpan="5" style={{ textAlign: "center", color: "#718096", padding: "1.5rem" }}>
+                        No results
+                      </td>
+                    </tr>
+                  ) : (
+                    usersData.users.map((usr) => (
+                      <tr key={usr.id}>
+                        <td><strong>{usr.full_name}</strong></td>
+                        <td style={{ color: "#4A5568" }}>{usr.email}</td>
+                        <td>
+                          <select
+                            className="admin-input"
+                            style={{ width: "auto", padding: "0.2rem 0.4rem", fontSize: "0.8rem" }}
+                            value={usr.role}
+                            onChange={(e) => handleRoleChange(usr.id, e.target.value)}
+                          >
+                            <option value="user">User</option>
+                            <option value="skincare_consultant">Skincare Consultant</option>
+                            <option value="dermatologist">Dermatologist</option>
+                            <option value="administrator">Administrator</option>
+                          </select>
+                        </td>
+                        <td>
+                          <button
+                            type="button"
+                            className={`admin-status-badge ${usr.is_active ? "active" : "suspended"}`}
+                            style={{ border: "none", cursor: "pointer" }}
+                            onClick={() => handleStatusToggle(usr.id, usr.is_active)}
+                          >
+                            {usr.is_active ? "Active" : "Suspended"}
+                          </button>
+                        </td>
+                        <td style={{ textAlign: "right", fontFamily: "'IBM Plex Mono', monospace", color: "#718096" }}>
+                          {new Date(usr.created_at).toLocaleDateString()}
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Pagination */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "1rem", borderTop: "1px solid #E2E8F0", paddingTop: "0.75rem" }}>
+              <span style={{ fontSize: "0.78rem", color: "#718096" }}>
+                Showing page {usersData.page} of {usersData.pages}
+              </span>
+              <div style={{ display: "flex", gap: "0.4rem" }}>
+                <button
+                  className="admin-btn admin-btn-secondary"
+                  disabled={usersPage <= 1}
+                  onClick={() => setUsersPage((prev) => prev - 1)}
+                  style={{ padding: "0.25rem 0.5rem" }}
+                >
+                  Prev
+                </button>
+                <button
+                  className="admin-btn admin-btn-secondary"
+                  disabled={usersPage >= usersData.pages}
+                  onClick={() => setUsersPage((prev) => prev + 1)}
+                  style={{ padding: "0.25rem 0.5rem" }}
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* DERMATOLOGISTS TAB */}
+        {activeTab === "dermatologists" && (
+          <div className="admin-card">
+            <h2 className="admin-card-title" style={{ marginBottom: "1rem" }}>Dermatologist Clinic Registrations</h2>
+            
+            <div className="admin-data-table-container">
+              <table className="admin-data-table">
+                <thead>
+                  <tr>
+                    <th>Specialist Name</th>
+                    <th>Clinic Name</th>
+                    <th>Contact Info</th>
+                    <th>Address</th>
+                    <th>Website</th>
+                    <th>Intake</th>
+                    <th style={{ textAlign: "right" }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {dermatologists.length === 0 ? (
+                    <tr>
+                      <td colSpan="7" style={{ textAlign: "center", color: "#718096", padding: "1.5rem" }}>
+                        No data yet
+                      </td>
+                    </tr>
+                  ) : (
+                    dermatologists.map((derma) => {
+                      const isEditing = editingDermaId === derma.id;
+                      return (
+                        <tr key={derma.id}>
+                          <td>
+                            <strong>{derma.full_name}</strong>
+                            <div style={{ fontSize: "0.75rem", color: "#718096" }}>{derma.email}</div>
+                          </td>
+                          <td>
+                            {isEditing ? (
+                              <input
+                                type="text"
+                                className="admin-input"
+                                value={editForm.clinic_name}
+                                onChange={(e) => setEditForm({ ...editForm, clinic_name: e.target.value })}
+                              />
+                            ) : (
+                              derma.clinic_name || "—"
+                            )}
+                          </td>
+                          <td>
+                            {isEditing ? (
+                              <input
+                                type="text"
+                                className="admin-input"
+                                value={editForm.phone}
+                                onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
+                              />
+                            ) : (
+                              derma.phone || "—"
+                            )}
+                          </td>
+                          <td>
+                            {isEditing ? (
+                              <input
+                                type="text"
+                                className="admin-input"
+                                value={editForm.address}
+                                onChange={(e) => setEditForm({ ...editForm, address: e.target.value })}
+                              />
+                            ) : (
+                              derma.address || "—"
+                            )}
+                          </td>
+                          <td>
+                            {isEditing ? (
+                              <input
+                                type="text"
+                                className="admin-input"
+                                value={editForm.website}
+                                onChange={(e) => setEditForm({ ...editForm, website: e.target.value })}
+                              />
+                            ) : derma.website ? (
+                              <a href={derma.website} target="_blank" rel="noopener noreferrer" style={{ color: "#3F6F5E", fontWeight: "600" }}>
+                                Link
+                              </a>
+                            ) : (
+                              "—"
+                            )}
+                          </td>
+                          <td>
+                            {isEditing ? (
+                              <label style={{ display: "flex", alignItems: "center", gap: "0.25rem", cursor: "pointer" }}>
+                                <input
+                                  type="checkbox"
+                                  checked={editForm.accepting_new_patients}
+                                  onChange={(e) => setEditForm({ ...editForm, accepting_new_patients: e.target.checked })}
+                                />
+                                <span style={{ fontSize: "0.75rem" }}>Open</span>
+                              </label>
+                            ) : (
+                              <span className={`admin-status-badge ${derma.accepting_new_patients ? "active" : "suspended"}`}>
+                                {derma.accepting_new_patients ? "Open" : "Closed"}
+                              </span>
+                            )}
+                          </td>
+                          <td style={{ textAlign: "right" }}>
+                            {isEditing ? (
+                              <div style={{ display: "flex", gap: "0.25rem", justifyContent: "flex-end" }}>
+                                <button
+                                  className="admin-btn admin-btn-primary"
+                                  onClick={() => handleDermaSave(derma.id)}
+                                  style={{ padding: "0.2rem 0.4rem", fontSize: "0.75rem" }}
+                                >
+                                  Save
+                                </button>
+                                <button
+                                  className="admin-btn admin-btn-secondary"
+                                  onClick={() => setEditingDermaId(null)}
+                                  style={{ padding: "0.2rem 0.4rem", fontSize: "0.75rem" }}
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                            ) : (
+                              <button
+                                className="admin-btn admin-btn-secondary"
+                                onClick={() => startEditingDerma(derma)}
+                                style={{ padding: "0.2rem 0.4rem", fontSize: "0.75rem" }}
+                              >
+                                Edit
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
