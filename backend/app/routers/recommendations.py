@@ -83,3 +83,88 @@ def create_product(
     product_dict["id"] = str(result.inserted_id)
     del product_dict["_id"]
     return product_dict
+
+
+from bson import ObjectId
+from datetime import datetime
+
+@router.post("/user/{user_id}", status_code=201)
+def recommend_products_to_user(
+    user_id: str,
+    payload: dict,  # {"product_ids": ["..."], "notes": "..."}
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    if current_user.role not in [models.RoleEnum.administrator, models.RoleEnum.skincare_consultant, models.RoleEnum.dermatologist]:
+        raise HTTPException(
+            status_code=403,
+            detail="Only consultants, dermatologists, or administrators can recommend products."
+        )
+    
+    # Verify patient exists
+    patient = db.query(models.User).filter(models.User.id == user_id).first()
+    if not patient:
+        raise HTTPException(status_code=404, detail="Patient/user not found")
+        
+    mongo = get_mongo_db()
+    recommendation = {
+        "user_id": user_id,
+        "consultant_id": current_user.id,
+        "consultant_name": current_user.full_name,
+        "product_ids": payload.get("product_ids", []),
+        "notes": payload.get("notes", ""),
+        "created_at": datetime.utcnow().isoformat()
+    }
+    
+    # Upsert recommendation
+    mongo.consultant_recommendations.update_one(
+        {"user_id": user_id},
+        {"$set": recommendation},
+        upsert=True
+    )
+    return {"status": "success", "message": "Recommendations saved successfully."}
+
+
+@router.get("/user/{user_id}")
+def get_user_recommendations(
+    user_id: str,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    if user_id == "me":
+        user_id = current_user.id
+    # Retrieve from MongoDB
+    mongo = get_mongo_db()
+    rec = mongo.consultant_recommendations.find_one({"user_id": user_id})
+    if not rec:
+        return {"product_ids": [], "notes": "", "products": []}
+        
+    product_ids = rec.get("product_ids", [])
+    products_details = []
+    
+    # Retrieve each product detail from products collection
+    for pid in product_ids:
+        try:
+            prod = mongo.products.find_one({"_id": ObjectId(pid)})
+            if not prod:
+                # Try finding by string ID just in case
+                prod = mongo.products.find_one({"id": pid})
+            if prod:
+                prod["id"] = str(prod["_id"])
+                del prod["_id"]
+                products_details.append(prod)
+        except Exception:
+            # Fallback for non-ObjectId string matches
+            prod = mongo.products.find_one({"id": pid})
+            if prod:
+                prod["id"] = str(prod["_id"])
+                del prod["_id"]
+                products_details.append(prod)
+                
+    return {
+        "user_id": user_id,
+        "consultant_name": rec.get("consultant_name", "Your Consultant"),
+        "notes": rec.get("notes", ""),
+        "products": products_details,
+        "created_at": rec.get("created_at")
+    }
