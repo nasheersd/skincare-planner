@@ -194,3 +194,58 @@ def delete_product(
             raise HTTPException(status_code=404, detail="Product not found.")
     return None
 
+
+@router.get("/all")
+def get_all_assigned_recommendations(
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    if current_user.role not in [models.RoleEnum.administrator, models.RoleEnum.skincare_consultant, models.RoleEnum.dermatologist]:
+        raise HTTPException(
+            status_code=403,
+            detail="Only consultants, specialists, or administrators can view all recommendations."
+        )
+    from bson import ObjectId
+    mongo = get_mongo_db()
+    recs = list(mongo.recommendations.find())
+    
+    results = []
+    for r in recs:
+        u_id = r.get("user_id")
+        user = db.query(models.User).filter(models.User.id == u_id).first()
+        user_name = user.full_name if user else "Unknown User"
+        user_email = user.email if user else "—"
+        
+        # Resolve product details
+        product_ids = r.get("product_ids", [])
+        products_details = []
+        for pid in product_ids:
+            try:
+                prod = mongo.products.find_one({"_id": ObjectId(pid)})
+                if not prod:
+                    prod = mongo.products.find_one({"id": pid})
+                if prod:
+                    prod["id"] = str(prod["_id"])
+                    del prod["_id"]
+                    products_details.append(prod)
+            except Exception:
+                prod = mongo.products.find_one({"id": pid})
+                if prod:
+                    prod["id"] = str(prod["_id"])
+                    del prod["_id"]
+                    products_details.append(prod)
+                    
+        results.append({
+            "id": str(r["_id"]),
+            "user_id": u_id,
+            "user_name": user_name,
+            "user_email": user_email,
+            "consultant_name": r.get("consultant_name", "Consultant"),
+            "notes": r.get("notes", ""),
+            "products": products_details,
+            "created_at": r.get("created_at")
+        })
+        
+    return results
+
+

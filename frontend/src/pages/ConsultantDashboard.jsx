@@ -20,6 +20,7 @@ export default function ConsultantDashboard() {
   const [patients, setPatients] = useState([]);
   const [dermatologists, setDermatologists] = useState([]);
   const [products, setProducts] = useState([]);
+  const [recommendationLogs, setRecommendationLogs] = useState([]);
   const [loading, setLoading] = useState(true);
 
   // Add Product Form State
@@ -38,12 +39,13 @@ export default function ConsultantDashboard() {
 
   const loadData = async () => {
     try {
-      const [meRes, profileRes, patientsRes, dermatologistsRes, recsRes] = await Promise.all([
+      const [meRes, profileRes, patientsRes, dermatologistsRes, recsRes, allRecsRes] = await Promise.all([
         api.get("/users/me"),
         api.get("/workspace/consultant-profile").catch(() => ({ data: null })),
         api.get("/workspace/consultant/patients").catch(() => ({ data: [] })),
         api.get("/workspace/consultant/dermatologists").catch(() => ({ data: [] })),
         api.get("/recommendations/").catch(() => ({ data: null })),
+        api.get("/recommendations/all").catch(() => ({ data: [] })),
       ]);
       setMe(meRes.data);
       setProfile(profileRes.data);
@@ -52,6 +54,7 @@ export default function ConsultantDashboard() {
       if (recsRes.data?.products) {
         setProducts(recsRes.data.products);
       }
+      setRecommendationLogs(allRecsRes.data || []);
     } finally {
       setLoading(false);
     }
@@ -291,6 +294,64 @@ export default function ConsultantDashboard() {
               </div>
             ))
           )}
+        </div>
+      </section>
+
+      {/* Recently Assigned Recommendations Registry */}
+      <section className="section">
+        <h2 className="section-title">Assigned Recommendations Registry</h2>
+        <p style={{ margin: "0.2rem 0 1rem 0", color: "var(--color-ink-muted)", fontSize: "0.88rem" }}>
+          Overview of skincare recommendations formulated for active customers.
+        </p>
+
+        <div className="card" style={{ padding: 0, overflowX: "auto" }}>
+          <table className="table" style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
+            <thead>
+              <tr style={{ borderBottom: "2px solid var(--color-border)", background: "var(--color-surface-sunken)" }}>
+                <th style={{ padding: "0.75rem 1rem", fontSize: "0.8rem", textTransform: "uppercase" }}>Customer Info</th>
+                <th style={{ padding: "0.75rem 1rem", fontSize: "0.8rem", textTransform: "uppercase" }}>Formulated Products</th>
+                <th style={{ padding: "0.75rem 1rem", fontSize: "0.8rem", textTransform: "uppercase" }}>Plan / Notes</th>
+                <th style={{ padding: "0.75rem 1rem", fontSize: "0.8rem", textTransform: "uppercase" }}>Author</th>
+                <th style={{ padding: "0.75rem 1rem", fontSize: "0.8rem", textTransform: "uppercase", textAlign: "right" }}>Date Assigned</th>
+              </tr>
+            </thead>
+            <tbody>
+              {recommendationLogs.length === 0 ? (
+                <tr>
+                  <td colSpan="5" style={{ textAlign: "center", padding: "2rem", color: "var(--color-ink-faint)" }}>
+                    No product recommendations assigned yet. Go to Customer Progress to prescribe one.
+                  </td>
+                </tr>
+              ) : (
+                recommendationLogs.map((log) => (
+                  <tr key={log.id} style={{ borderBottom: "1px solid var(--color-border)" }}>
+                    <td style={{ padding: "0.75rem 1rem" }}>
+                      <strong>{log.user_name}</strong>
+                      <div style={{ fontSize: "0.78rem", color: "var(--color-ink-faint)" }}>{log.user_email}</div>
+                    </td>
+                    <td style={{ padding: "0.75rem 1rem" }}>
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: "0.25rem" }}>
+                        {log.products?.map((p) => (
+                          <span key={p.id} style={{ fontSize: "0.75rem", background: "var(--color-primary-tint)", color: "var(--color-primary-dark)", padding: "0.15rem 0.4rem", borderRadius: "4px" }}>
+                            {p.name}
+                          </span>
+                        ))}
+                      </div>
+                    </td>
+                    <td style={{ padding: "0.75rem 1rem", fontSize: "0.82rem", color: "var(--color-ink-muted)", maxWidth: "300px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={log.notes}>
+                      {log.notes || "—"}
+                    </td>
+                    <td style={{ padding: "0.75rem 1rem", fontSize: "0.82rem" }}>
+                      {log.consultant_name}
+                    </td>
+                    <td style={{ padding: "0.75rem 1rem", textAlign: "right", fontSize: "0.82rem", color: "var(--color-ink-faint)" }}>
+                      {log.created_at ? new Date(log.created_at).toLocaleDateString() : "—"}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
       </section>
 
