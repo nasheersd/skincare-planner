@@ -45,6 +45,7 @@ function HomeRedirect() {
 
   if (authLoading) return <LoadingState label="Loading your workspace…" />;
   if (!token) return <Landing />;
+  if (user?.role === "administrator") return <Navigate to="/admin" replace />;
   if (user?.role === "dermatologist") return <Navigate to="/dermatologist/dashboard" replace />;
   if (user?.role === "skincare_consultant") return <Navigate to="/consultant/dashboard" replace />;
   return <Navigate to="/dashboard" replace />;
@@ -62,7 +63,7 @@ export default function App() {
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route
               path="/dashboard"
-              element={<ProtectedRoute allowedRoles={["user", "administrator"]}><Dashboard /></ProtectedRoute>}
+              element={<ProtectedRoute allowedRoles={["user"]}><Dashboard /></ProtectedRoute>}
             />
             <Route
               path="/consultant/dashboard"
@@ -102,23 +103,23 @@ export default function App() {
             />
             <Route
               path="/skin-profile"
-              element={<ProtectedRoute allowedRoles={["user", "administrator"]}><SkinProfile /></ProtectedRoute>}
+              element={<ProtectedRoute allowedRoles={["user"]}><SkinProfile /></ProtectedRoute>}
             />
             <Route
               path="/skin-assessment"
-              element={<ProtectedRoute allowedRoles={["user", "administrator"]}><SkinAssessment /></ProtectedRoute>}
+              element={<ProtectedRoute allowedRoles={["user"]}><SkinAssessment /></ProtectedRoute>}
             />
             <Route
               path="/dermatologist"
-              element={<ProtectedRoute allowedRoles={["user", "administrator"]}><DermatologistContact /></ProtectedRoute>}
+              element={<ProtectedRoute allowedRoles={["user"]}><DermatologistContact /></ProtectedRoute>}
             />
             <Route
               path="/recommendations"
-              element={<ProtectedRoute allowedRoles={["user", "administrator"]}><ProductRecommendation /></ProtectedRoute>}
+              element={<ProtectedRoute allowedRoles={["user"]}><ProductRecommendation /></ProtectedRoute>}
             />
             <Route
               path="/progress"
-              element={<ProtectedRoute allowedRoles={["user", "administrator"]}><ProgressTracking /></ProtectedRoute>}
+              element={<ProtectedRoute allowedRoles={["user"]}><ProgressTracking /></ProtectedRoute>}
             />
             <Route
               path="/admin"

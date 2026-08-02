@@ -28,12 +28,6 @@ const DERMATOLOGIST_LINKS = [
 
 const ADMIN_LINKS = [
   { to: "/admin", label: "Admin Panel", icon: "🛠️" },
-  { to: "/dashboard", label: "Dashboard", icon: "✨" },
-  { to: "/skin-profile", label: "Skin Profile", icon: "🧴" },
-  { to: "/skin-assessment", label: "Assessment", icon: "📝" },
-  { to: "/dermatologist", label: "Dermatologist", icon: "🩺" },
-  { to: "/recommendations", label: "Recommendations", icon: "🛍️" },
-  { to: "/progress", label: "Progress Logs", icon: "📈" },
 ];
 
 export default function Navbar() {
