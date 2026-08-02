@@ -43,7 +43,7 @@ export default function ConsultantDashboard() {
         api.get("/workspace/consultant-profile").catch(() => ({ data: null })),
         api.get("/workspace/consultant/patients").catch(() => ({ data: [] })),
         api.get("/workspace/consultant/dermatologists").catch(() => ({ data: [] })),
-        api.get("/v1/recommendations").catch(() => ({ data: null })),
+        api.get("/recommendations/").catch(() => ({ data: null })),
       ]);
       setMe(meRes.data);
       setProfile(profileRes.data);
@@ -77,7 +77,7 @@ export default function ConsultantDashboard() {
         safety_warnings: ["Patch test before initial application"],
         usage_instructions: "Apply evenly twice daily after cleansing."
       };
-      await api.post("/v1/recommendations/products", payload);
+      await api.post("/recommendations/", payload);
       setAddStatus({ type: "ok", text: "Product added to clinical catalog successfully!" });
       setNewProd({
         name: "",
