@@ -41,6 +41,11 @@ export default function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    if (password.length < 12) {
+      setError("Password must be at least 12 characters long.");
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     try {
       // 1. Create main user account

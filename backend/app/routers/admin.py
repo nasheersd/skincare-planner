@@ -6,6 +6,7 @@ from typing import Optional
 from app.database import get_db, get_mongo_db
 from app.rbac import require_admin
 from app import models, schemas
+from app.auth import get_current_user
 
 router = APIRouter(prefix="/api/admin", tags=["admin"], dependencies=[Depends(require_admin)])
 
