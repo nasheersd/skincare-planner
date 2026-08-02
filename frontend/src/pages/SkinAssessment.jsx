@@ -125,6 +125,9 @@ export default function SkinAssessment() {
           ];
         }
 
+        // Clear validation errors for skin type and concerns
+        setValidationErrors(prev => ({ ...prev, skin_type: "", concerns: "" }));
+
         // Set formData state
         setFormData(prev => {
           const updated = {
