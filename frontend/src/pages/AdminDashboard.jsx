@@ -9,6 +9,7 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState(null);
   const [usersData, setUsersData] = useState({ users: [], total_count: 0, page: 1, pages: 1 });
   const [dermatologists, setDermatologists] = useState([]);
+  const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [statusMsg, setStatusMsg] = useState(null);
   
@@ -70,6 +71,15 @@ export default function AdminDashboard() {
     }
   };
 
+  const loadProducts = async () => {
+    try {
+      const res = await api.get("/admin/products");
+      setProducts(res.data);
+    } catch (err) {
+      console.error("Failed to load products list.", err);
+    }
+  };
+
   const loadMe = async () => {
     try {
       const res = await api.get("/users/me");
@@ -82,7 +92,7 @@ export default function AdminDashboard() {
   useEffect(() => {
     const init = async () => {
       setLoading(true);
-      await Promise.all([loadMe(), loadStats(), loadUsers(), loadDermatologists()]);
+      await Promise.all([loadMe(), loadStats(), loadUsers(), loadDermatologists(), loadProducts()]);
       setLoading(false);
     };
     init();
@@ -162,6 +172,7 @@ export default function AdminDashboard() {
         description: "Clinical grade daily moisturizer."
       });
       setShowAddForm(false);
+      loadProducts();
       loadStats();
     } catch (err) {
       setStatusMsg({ type: "error", text: err.response?.data?.detail || "Failed to add product." });
@@ -170,9 +181,21 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleDeleteProduct = async (productId) => {
+    if (!window.confirm("Are you sure you want to delete this product from the skincare catalog?")) return;
+    try {
+      await api.delete(`/recommendations/${productId}`);
+      setStatusMsg({ type: "ok", text: "Product deleted from catalog successfully." });
+      loadProducts();
+      loadStats();
+    } catch (err) {
+      setStatusMsg({ type: "error", text: err.response?.data?.detail || "Failed to delete product." });
+    }
+  };
+
   if (loading) return <LoadingState label="Loading administration console…" />;
 
-  const breadcrumbText = activeTab === "overview" ? "Overview" : activeTab === "users" ? "Users" : "Clinic Profiles";
+  const breadcrumbText = activeTab === "overview" ? "Overview" : activeTab === "users" ? "Users" : activeTab === "products" ? "Product Catalog" : "Clinic Profiles";
 
   return (
     <div className="admin-shell">
@@ -211,6 +234,12 @@ export default function AdminDashboard() {
             Manage Users
           </button>
           <button
+            className={`admin-tab-btn ${activeTab === "products" ? "active" : ""}`}
+            onClick={() => setActiveTab("products")}
+          >
+            Product Catalog
+          </button>
+          <button
             className={`admin-tab-btn ${activeTab === "dermatologists" ? "active" : ""}`}
             onClick={() => setActiveTab("dermatologists")}
           >
@@ -246,110 +275,37 @@ export default function AdminDashboard() {
               </div>
             </div>
 
-            {/* Product Catalog Section */}
+            {/* Role Breakdown Analytics */}
             <div className="admin-card">
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <div>
-                  <h2 className="admin-card-title">skincare catalog administration</h2>
-                  <p style={{ margin: "0.2rem 0 0 0", color: "#718096", fontSize: "0.82rem" }}>
-                    Insert product records into the MongoDB skincare product catalog.
-                  </p>
-                </div>
-                <button
-                  onClick={() => setShowAddForm(!showAddForm)}
-                  className="admin-btn admin-btn-primary"
-                >
-                  {showAddForm ? "Cancel" : "Add Product"}
-                </button>
+              <h2 className="admin-card-title">System Role Distribution</h2>
+              <div className="admin-data-table-container">
+                <table className="admin-data-table">
+                  <thead>
+                    <tr>
+                      <th>Account Role</th>
+                      <th style={{ textAlign: "right" }}>Registered Count</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Consumer Users</td>
+                      <td style={{ textAlign: "right", fontFamily: "'IBM Plex Mono', monospace" }}>{stats.total_users_by_role?.user || 0}</td>
+                    </tr>
+                    <tr>
+                      <td>Skincare Consultants</td>
+                      <td style={{ textAlign: "right", fontFamily: "'IBM Plex Mono', monospace" }}>{stats.total_users_by_role?.skincare_consultant || 0}</td>
+                    </tr>
+                    <tr>
+                      <td>Dermatologists</td>
+                      <td style={{ textAlign: "right", fontFamily: "'IBM Plex Mono', monospace" }}>{stats.total_users_by_role?.dermatologist || 0}</td>
+                    </tr>
+                    <tr>
+                      <td>Administrators</td>
+                      <td style={{ textAlign: "right", fontFamily: "'IBM Plex Mono', monospace" }}>{stats.total_users_by_role?.administrator || 0}</td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
-
-              {showAddForm && (
-                <form onSubmit={handleAddProduct} style={{ display: "flex", flexDirection: "column", gap: "1rem", marginTop: "1.5rem", borderTop: "1px solid #E2E8F0", paddingTop: "1.5rem" }}>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
-                    <div className="field">
-                      <label style={{ fontSize: "0.78rem", fontWeight: "bold" }}>Product Name</label>
-                      <input
-                        type="text"
-                        className="admin-input"
-                        value={newProd.name}
-                        onChange={(e) => setNewProd({ ...newProd, name: e.target.value })}
-                        required
-                      />
-                    </div>
-                    <div className="field">
-                      <label style={{ fontSize: "0.78rem", fontWeight: "bold" }}>Brand</label>
-                      <input
-                        type="text"
-                        className="admin-input"
-                        value={newProd.brand}
-                        onChange={(e) => setNewProd({ ...newProd, brand: e.target.value })}
-                        required
-                      />
-                    </div>
-                  </div>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "1rem" }}>
-                    <div className="field">
-                      <label style={{ fontSize: "0.78rem", fontWeight: "bold" }}>Category</label>
-                      <select
-                        className="admin-input"
-                        value={newProd.category}
-                        onChange={(e) => setNewProd({ ...newProd, category: e.target.value })}
-                      >
-                        <option value="Cleanser">Cleanser</option>
-                        <option value="Moisturizer">Moisturizer</option>
-                        <option value="Serum">Serum</option>
-                        <option value="Sunscreen">Sunscreen</option>
-                        <option value="Treatment">Treatment</option>
-                        <option value="Toner">Toner</option>
-                      </select>
-                    </div>
-                    <div className="field">
-                      <label style={{ fontSize: "0.78rem", fontWeight: "bold" }}>Price ($)</label>
-                      <input
-                        type="number"
-                        step="0.01"
-                        className="admin-input"
-                        value={newProd.price}
-                        onChange={(e) => setNewProd({ ...newProd, price: e.target.value })}
-                        required
-                      />
-                    </div>
-                    <div className="field">
-                      <label style={{ fontSize: "0.78rem", fontWeight: "bold" }}>Suitable Skin Types</label>
-                      <input
-                        type="text"
-                        className="admin-input"
-                        value={newProd.suitable_skin_types}
-                        onChange={(e) => setNewProd({ ...newProd, suitable_skin_types: e.target.value })}
-                        required
-                      />
-                    </div>
-                  </div>
-                  <div className="field">
-                    <label style={{ fontSize: "0.78rem", fontWeight: "bold" }}>Key Ingredients (comma separated)</label>
-                    <input
-                      type="text"
-                      className="admin-input"
-                      value={newProd.key_active_ingredients}
-                      onChange={(e) => setNewProd({ ...newProd, key_active_ingredients: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <div className="field">
-                    <label style={{ fontSize: "0.78rem", fontWeight: "bold" }}>Description</label>
-                    <textarea
-                      rows="3"
-                      className="admin-input"
-                      value={newProd.description}
-                      onChange={(e) => setNewProd({ ...newProd, description: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <button type="submit" className="admin-btn admin-btn-primary" disabled={adding} style={{ width: "max-content", padding: "0.5rem 1.25rem" }}>
-                    {adding ? "Saving..." : "Save Product"}
-                  </button>
-                </form>
-              )}
             </div>
           </div>
         )}
@@ -458,6 +414,175 @@ export default function AdminDashboard() {
                 >
                   Next
                 </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* PRODUCT CATALOG TAB */}
+        {activeTab === "products" && (
+          <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+            
+            {/* Create Product Card */}
+            <div className="admin-card">
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div>
+                  <h2 className="admin-card-title" style={{ margin: 0 }}>Add New Skincare Product</h2>
+                  <p style={{ margin: "0.2rem 0 0 0", color: "#718096", fontSize: "0.82rem" }}>
+                    Create product records for routine builder and consultants.
+                  </p>
+                </div>
+                <button
+                  onClick={() => setShowAddForm(!showAddForm)}
+                  className="admin-btn admin-btn-primary"
+                >
+                  {showAddForm ? "Cancel" : "Add Product"}
+                </button>
+              </div>
+
+              {showAddForm && (
+                <form onSubmit={handleAddProduct} style={{ display: "flex", flexDirection: "column", gap: "1rem", marginTop: "1.5rem", borderTop: "1px solid #E2E8F0", paddingTop: "1.5rem" }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+                    <div className="field">
+                      <label style={{ fontSize: "0.78rem", fontWeight: "bold" }}>Product Name</label>
+                      <input
+                        type="text"
+                        className="admin-input"
+                        value={newProd.name}
+                        onChange={(e) => setNewProd({ ...newProd, name: e.target.value })}
+                        required
+                      />
+                    </div>
+                    <div className="field">
+                      <label style={{ fontSize: "0.78rem", fontWeight: "bold" }}>Brand</label>
+                      <input
+                        type="text"
+                        className="admin-input"
+                        value={newProd.brand}
+                        onChange={(e) => setNewProd({ ...newProd, brand: e.target.value })}
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "1rem" }}>
+                    <div className="field">
+                      <label style={{ fontSize: "0.78rem", fontWeight: "bold" }}>Category</label>
+                      <select
+                        className="admin-input"
+                        value={newProd.category}
+                        onChange={(e) => setNewProd({ ...newProd, category: e.target.value })}
+                      >
+                        <option value="Cleanser">Cleanser</option>
+                        <option value="Moisturizer">Moisturizer</option>
+                        <option value="Serum">Serum</option>
+                        <option value="Sunscreen">Sunscreen</option>
+                        <option value="Treatment">Treatment</option>
+                        <option value="Toner">Toner</option>
+                      </select>
+                    </div>
+                    <div className="field">
+                      <label style={{ fontSize: "0.78rem", fontWeight: "bold" }}>Price ($)</label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        className="admin-input"
+                        value={newProd.price}
+                        onChange={(e) => setNewProd({ ...newProd, price: e.target.value })}
+                        required
+                      />
+                    </div>
+                    <div className="field">
+                      <label style={{ fontSize: "0.78rem", fontWeight: "bold" }}>Suitable Skin Types</label>
+                      <input
+                        type="text"
+                        className="admin-input"
+                        value={newProd.suitable_skin_types}
+                        onChange={(e) => setNewProd({ ...newProd, suitable_skin_types: e.target.value })}
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div className="field">
+                    <label style={{ fontSize: "0.78rem", fontWeight: "bold" }}>Key Ingredients (comma separated)</label>
+                    <input
+                      type="text"
+                      className="admin-input"
+                      value={newProd.key_active_ingredients}
+                      onChange={(e) => setNewProd({ ...newProd, key_active_ingredients: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div className="field">
+                    <label style={{ fontSize: "0.78rem", fontWeight: "bold" }}>Description</label>
+                    <textarea
+                      rows="3"
+                      className="admin-input"
+                      value={newProd.description}
+                      onChange={(e) => setNewProd({ ...newProd, description: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <button type="submit" className="admin-btn admin-btn-primary" disabled={adding} style={{ width: "max-content", padding: "0.5rem 1.25rem" }}>
+                    {adding ? "Saving..." : "Save Product"}
+                  </button>
+                </form>
+              )}
+            </div>
+
+            {/* Interactive Catalog Table */}
+            <div className="admin-card">
+              <h2 className="admin-card-title">Skincare Product Catalog Records</h2>
+              <div className="admin-data-table-container">
+                <table className="admin-data-table">
+                  <thead>
+                    <tr>
+                      <th>Product Info</th>
+                      <th>Category</th>
+                      <th style={{ textAlign: "right" }}>Price</th>
+                      <th>Key Ingredients</th>
+                      <th>Suitable Types</th>
+                      <th style={{ textAlign: "right" }}>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {products.length === 0 ? (
+                      <tr>
+                        <td colSpan="6" style={{ textAlign: "center", color: "#718096", padding: "1.5rem" }}>
+                          No results
+                        </td>
+                      </tr>
+                    ) : (
+                      products.map((prod) => (
+                        <tr key={prod.id}>
+                          <td>
+                            <strong>{prod.name}</strong>
+                            <div style={{ fontSize: "0.75rem", color: "#718096" }}>{prod.brand}</div>
+                          </td>
+                          <td>{prod.category}</td>
+                          <td style={{ textAlign: "right", fontFamily: "'IBM Plex Mono', monospace" }}>
+                            ${Number(prod.price).toFixed(2)}
+                          </td>
+                          <td style={{ fontSize: "0.78rem", color: "#4A5568" }}>
+                            {prod.key_active_ingredients?.join(", ")}
+                          </td>
+                          <td style={{ fontSize: "0.78rem", textTransform: "capitalize" }}>
+                            {prod.suitable_skin_types?.join(", ")}
+                          </td>
+                          <td style={{ textAlign: "right" }}>
+                            <button
+                              type="button"
+                              className="admin-btn"
+                              style={{ color: "#E53E3E", background: "transparent", border: "none", cursor: "pointer", fontWeight: "bold" }}
+                              onClick={() => handleDeleteProduct(prod.id)}
+                            >
+                              Delete
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>

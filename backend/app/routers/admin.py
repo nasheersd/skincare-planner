@@ -158,3 +158,18 @@ def get_stats(db: Session = Depends(get_db)):
         "total_dermatologists": total_dermatologists,
         "total_products": total_products
     }
+
+
+@router.get("/products")
+def get_catalog_products():
+    try:
+        from app.database import get_mongo_db
+        mongo = get_mongo_db()
+        products = list(mongo.products.find())
+        for p in products:
+            p["id"] = str(p["_id"])
+            del p["_id"]
+        return products
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch catalog: {str(e)}")
+

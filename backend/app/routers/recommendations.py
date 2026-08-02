@@ -168,3 +168,29 @@ def get_user_recommendations(
         "products": products_details,
         "created_at": rec.get("created_at")
     }
+
+
+@router.delete("/{product_id}", status_code=204)
+def delete_product(
+    product_id: str,
+    current_user: models.User = Depends(get_current_user)
+):
+    if current_user.role not in [models.RoleEnum.administrator, models.RoleEnum.skincare_consultant]:
+        raise HTTPException(
+            status_code=403,
+            detail="Only administrators or consultants can delete products."
+        )
+    from bson import ObjectId
+    mongo = get_mongo_db()
+    try:
+        result = mongo.products.delete_one({"_id": ObjectId(product_id)})
+        if result.deleted_count == 0:
+            result = mongo.products.delete_one({"id": product_id})
+        if result.deleted_count == 0:
+            raise HTTPException(status_code=404, detail="Product not found.")
+    except Exception:
+        result = mongo.products.delete_one({"id": product_id})
+        if result.deleted_count == 0:
+            raise HTTPException(status_code=404, detail="Product not found.")
+    return None
+
