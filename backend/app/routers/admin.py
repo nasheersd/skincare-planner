@@ -173,3 +173,58 @@ def get_catalog_products():
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to fetch catalog: {str(e)}")
 
+
+@router.get("/ingredients")
+def get_catalog_ingredients():
+    try:
+        from app.database import get_mongo_db
+        mongo = get_mongo_db()
+        ingredients = list(mongo.ingredients.find())
+        for ing in ingredients:
+            ing["id"] = str(ing["_id"])
+            del ing["_id"]
+        return ingredients
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch ingredients catalog: {str(e)}")
+
+
+@router.post("/ingredients", status_code=201)
+def add_catalog_ingredient(
+    payload: dict,
+    current_user: models.User = Depends(get_current_user)
+):
+    if current_user.role != models.RoleEnum.administrator:
+        raise HTTPException(status_code=403, detail="Only administrators can manage the ingredients catalog.")
+    try:
+        from app.database import get_mongo_db
+        mongo = get_mongo_db()
+        # insert record
+        res = mongo.ingredients.insert_one(payload)
+        return {"id": str(res.inserted_id)}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to create ingredient: {str(e)}")
+
+
+@router.delete("/ingredients/{id}", status_code=204)
+def delete_catalog_ingredient(
+    id: str,
+    current_user: models.User = Depends(get_current_user)
+):
+    if current_user.role != models.RoleEnum.administrator:
+        raise HTTPException(status_code=403, detail="Only administrators can manage the ingredients catalog.")
+    from bson import ObjectId
+    try:
+        from app.database import get_mongo_db
+        mongo = get_mongo_db()
+        result = mongo.ingredients.delete_one({"_id": ObjectId(id)})
+        if result.deleted_count == 0:
+            result = mongo.ingredients.delete_one({"id": id})
+        if result.deleted_count == 0:
+            raise HTTPException(status_code=404, detail="Ingredient not found.")
+    except Exception:
+        result = mongo.ingredients.delete_one({"id": id})
+        if result.deleted_count == 0:
+            raise HTTPException(status_code=404, detail="Ingredient not found.")
+    return None
+
+

@@ -10,6 +10,7 @@ export default function AdminDashboard() {
   const [usersData, setUsersData] = useState({ users: [], total_count: 0, page: 1, pages: 1 });
   const [dermatologists, setDermatologists] = useState([]);
   const [products, setProducts] = useState([]);
+  const [ingredients, setIngredients] = useState([]);
   const [loading, setLoading] = useState(true);
   const [statusMsg, setStatusMsg] = useState(null);
   
@@ -42,6 +43,18 @@ export default function AdminDashboard() {
     description: "Clinical grade daily moisturizer."
   });
   const [adding, setAdding] = useState(false);
+
+  // Add Ingredient Form State
+  const [showAddIngForm, setShowAddIngForm] = useState(false);
+  const [newIng, setNewIng] = useState({
+    name: "",
+    category: "Active",
+    benefits: "Reduces oil production",
+    suitable_skin_types: "oily, combination, normal",
+    common_concerns_addressed: "acne, dullness",
+    typical_concentration_range: "2-5%"
+  });
+  const [addingIng, setAddingIng] = useState(false);
 
   const loadStats = async () => {
     try {
@@ -80,6 +93,15 @@ export default function AdminDashboard() {
     }
   };
 
+  const loadIngredients = async () => {
+    try {
+      const res = await api.get("/admin/ingredients");
+      setIngredients(res.data);
+    } catch (err) {
+      console.error("Failed to load ingredients list.", err);
+    }
+  };
+
   const loadMe = async () => {
     try {
       const res = await api.get("/users/me");
@@ -92,7 +114,7 @@ export default function AdminDashboard() {
   useEffect(() => {
     const init = async () => {
       setLoading(true);
-      await Promise.all([loadMe(), loadStats(), loadUsers(), loadDermatologists(), loadProducts()]);
+      await Promise.all([loadMe(), loadStats(), loadUsers(), loadDermatologists(), loadProducts(), loadIngredients()]);
       setLoading(false);
     };
     init();
@@ -193,9 +215,52 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleAddIngredient = async (e) => {
+    e.preventDefault();
+    setAddingIng(true);
+    setStatusMsg(null);
+    try {
+      const payload = {
+        name: newIng.name,
+        category: newIng.category,
+        benefits: newIng.benefits.split(",").map(s => s.trim()),
+        suitable_skin_types: newIng.suitable_skin_types.split(",").map(s => s.trim().toLowerCase()),
+        common_concerns_addressed: newIng.common_concerns_addressed.split(",").map(s => s.trim().toLowerCase()),
+        typical_concentration_range: newIng.typical_concentration_range
+      };
+      await api.post("/admin/ingredients", payload);
+      setStatusMsg({ type: "ok", text: "Ingredient added to catalog successfully!" });
+      setNewIng({
+        name: "",
+        category: "Active",
+        benefits: "Reduces oil production",
+        suitable_skin_types: "oily, combination, normal",
+        common_concerns_addressed: "acne, dullness",
+        typical_concentration_range: "2-5%"
+      });
+      setShowAddIngForm(false);
+      loadIngredients();
+    } catch (err) {
+      setStatusMsg({ type: "error", text: err.response?.data?.detail || "Failed to add ingredient." });
+    } finally {
+      setAddingIng(false);
+    }
+  };
+
+  const handleDeleteIngredient = async (ingId) => {
+    if (!window.confirm("Are you sure you want to delete this ingredient record from the catalog?")) return;
+    try {
+      await api.delete(`/admin/ingredients/${ingId}`);
+      setStatusMsg({ type: "ok", text: "Ingredient record deleted successfully." });
+      loadIngredients();
+    } catch (err) {
+      setStatusMsg({ type: "error", text: err.response?.data?.detail || "Failed to delete ingredient." });
+    }
+  };
+
   if (loading) return <LoadingState label="Loading administration console…" />;
 
-  const breadcrumbText = activeTab === "overview" ? "Overview" : activeTab === "users" ? "Users" : activeTab === "products" ? "Product Catalog" : "Clinic Profiles";
+  const breadcrumbText = activeTab === "overview" ? "Overview" : activeTab === "users" ? "Users" : activeTab === "products" ? "Product Catalog" : activeTab === "ingredients" ? "Ingredients Catalog" : "Clinic Profiles";
 
   return (
     <div className="admin-shell">
@@ -238,6 +303,12 @@ export default function AdminDashboard() {
             onClick={() => setActiveTab("products")}
           >
             Product Catalog
+          </button>
+          <button
+            className={`admin-tab-btn ${activeTab === "ingredients" ? "active" : ""}`}
+            onClick={() => setActiveTab("ingredients")}
+          >
+            Ingredients Catalog
           </button>
           <button
             className={`admin-tab-btn ${activeTab === "dermatologists" ? "active" : ""}`}
@@ -297,7 +368,7 @@ export default function AdminDashboard() {
                     </tr>
                     <tr>
                       <td>Dermatologists</td>
-                      <td style={{ textAlign: "right", fontFamily: "'IBM Plex Mono', monospace" }}>{stats.total_users_by_role?.dermatologist || 0}</td>
+                      <td style={{ textAlign: "right", fontFamily: "'IBM Plex Mono', monospace" }}>{stats.total_dermatologists || 0}</td>
                     </tr>
                     <tr>
                       <td>Administrators</td>
@@ -574,6 +645,156 @@ export default function AdminDashboard() {
                               className="admin-btn"
                               style={{ color: "#E53E3E", background: "transparent", border: "none", cursor: "pointer", fontWeight: "bold" }}
                               onClick={() => handleDeleteProduct(prod.id)}
+                            >
+                              Delete
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* INGREDIENTS CATALOG TAB */}
+        {activeTab === "ingredients" && (
+          <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+            
+            {/* Create Ingredient Form Card */}
+            <div className="admin-card">
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div>
+                  <h2 className="admin-card-title" style={{ margin: 0 }}>Register New Active Ingredient</h2>
+                  <p style={{ margin: "0.2rem 0 0 0", color: "#718096", fontSize: "0.82rem" }}>
+                    Insert active ingredients to power matching skincare intelligence analysis.
+                  </p>
+                </div>
+                <button
+                  onClick={() => setShowAddIngForm(!showAddIngForm)}
+                  className="admin-btn admin-btn-primary"
+                >
+                  {showAddIngForm ? "Cancel" : "Add Ingredient"}
+                </button>
+              </div>
+
+              {showAddIngForm && (
+                <form onSubmit={handleAddIngredient} style={{ display: "flex", flexDirection: "column", gap: "1rem", marginTop: "1.5rem", borderTop: "1px solid #E2E8F0", paddingTop: "1.5rem" }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+                    <div className="field">
+                      <label style={{ fontSize: "0.78rem", fontWeight: "bold" }}>Ingredient Name</label>
+                      <input
+                        type="text"
+                        className="admin-input"
+                        value={newIng.name}
+                        onChange={(e) => setNewIng({ ...newIng, name: e.target.value })}
+                        required
+                      />
+                    </div>
+                    <div className="field">
+                      <label style={{ fontSize: "0.78rem", fontWeight: "bold" }}>Category (e.g. Exfoliant, Humectant)</label>
+                      <input
+                        type="text"
+                        className="admin-input"
+                        value={newIng.category}
+                        onChange={(e) => setNewIng({ ...newIng, category: e.target.value })}
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "1rem" }}>
+                    <div className="field">
+                      <label style={{ fontSize: "0.78rem", fontWeight: "bold" }}>Suitable Skin Types</label>
+                      <input
+                        type="text"
+                        className="admin-input"
+                        value={newIng.suitable_skin_types}
+                        onChange={(e) => setNewIng({ ...newIng, suitable_skin_types: e.target.value })}
+                        required
+                      />
+                    </div>
+                    <div className="field">
+                      <label style={{ fontSize: "0.78rem", fontWeight: "bold" }}>Concerns Addressed</label>
+                      <input
+                        type="text"
+                        className="admin-input"
+                        value={newIng.common_concerns_addressed}
+                        onChange={(e) => setNewIng({ ...newIng, common_concerns_addressed: e.target.value })}
+                        required
+                      />
+                    </div>
+                    <div className="field">
+                      <label style={{ fontSize: "0.78rem", fontWeight: "bold" }}>Typical Concentration</label>
+                      <input
+                        type="text"
+                        className="admin-input"
+                        value={newIng.typical_concentration_range}
+                        onChange={(e) => setNewIng({ ...newIng, typical_concentration_range: e.target.value })}
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div className="field">
+                    <label style={{ fontSize: "0.78rem", fontWeight: "bold" }}>Benefits (comma separated)</label>
+                    <input
+                      type="text"
+                      className="admin-input"
+                      value={newIng.benefits}
+                      onChange={(e) => setNewIng({ ...newIng, benefits: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <button type="submit" className="admin-btn admin-btn-primary" disabled={addingIng} style={{ width: "max-content", padding: "0.5rem 1.25rem" }}>
+                    {addingIng ? "Saving..." : "Save Ingredient"}
+                  </button>
+                </form>
+              )}
+            </div>
+
+            {/* Ingredients Table */}
+            <div className="admin-card">
+              <h2 className="admin-card-title">Active Ingredients Database Records</h2>
+              <div className="admin-data-table-container">
+                <table className="admin-data-table">
+                  <thead>
+                    <tr>
+                      <th>Ingredient Name</th>
+                      <th>Category</th>
+                      <th>Benefits</th>
+                      <th>Concerns Addressed</th>
+                      <th>Concentration</th>
+                      <th style={{ textAlign: "right" }}>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {ingredients.length === 0 ? (
+                      <tr>
+                        <td colSpan="6" style={{ textAlign: "center", color: "#718096", padding: "1.5rem" }}>
+                          No results
+                        </td>
+                      </tr>
+                    ) : (
+                      ingredients.map((ing) => (
+                        <tr key={ing.id}>
+                          <td><strong>{ing.name}</strong></td>
+                          <td>{ing.category}</td>
+                          <td style={{ fontSize: "0.78rem", color: "#4A5568" }}>
+                            {ing.benefits?.join(", ")}
+                          </td>
+                          <td style={{ fontSize: "0.78rem", color: "#4A5568" }}>
+                            {ing.common_concerns_addressed?.join(", ")}
+                          </td>
+                          <td style={{ fontFamily: "'IBM Plex Mono', monospace" }}>
+                            {ing.typical_concentration_range || "N/A"}
+                          </td>
+                          <td style={{ textAlign: "right" }}>
+                            <button
+                              type="button"
+                              className="admin-btn"
+                              style={{ color: "#E53E3E", background: "transparent", border: "none", cursor: "pointer", fontWeight: "bold" }}
+                              onClick={() => handleDeleteIngredient(ing.id)}
                             >
                               Delete
                             </button>
