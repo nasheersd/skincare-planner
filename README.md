@@ -12,9 +12,7 @@ The platform combines a skin-profile assessment, an ingredient safety engine, an
 
 ## Video of the project
 
-<video src="https://github.com/nasheersd/skincare-planner/releases/download/untagged-726cab4ef9a33442cdc0/Screen.Recording.2026-08-12.163415.mp4
-" controls="controls" style="max-width: 100%;">
-</video>
+https://github.com/user-attachments/assets/3c5f119f-7a5d-44d3-8942-a31ed43cf8a6
 
 ## Features
 
