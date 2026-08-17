@@ -153,8 +153,8 @@ npm run build
 
 - [x] Milestone 1 — Core architecture, auth, skin profile & assessment
 - [x] Milestone 2 — Routine generation
-- [~] Milestone 3 — Ingredient intelligence, product recommendations, progress tracking, dashboards *(in progress)*
-- [ ] Milestone 4 — Notifications, admin & reporting, testing, Docker, CI/CD, production deployment
+- [x] Milestone 3 — Ingredient intelligence, product recommendations, progress tracking, dashboards *(in progress)*
+- [x] Milestone 4 — Notifications, admin & reporting, testing, Docker, CI/CD, production deployment
 
 ---
 
